@@ -1,0 +1,26 @@
+{
+	"name" : "ernadoo/mondial-relay-bundle",
+	"type" : "symfony-bundle",
+	"description" : "Mondial Relay Bundle for Symfony 4",
+	"keywords" : [
+		"Mondial Relay"
+	],
+	"license" : "MIT",
+	"authors" : [{
+			"name" : "Erwan Nader",
+			"role" : "Developer"
+		}
+	],
+	"require" : {
+		"php" : "^7.1",
+		"ernadoo/mondial-relay" : "dev-master"
+	},
+	"config" : {
+		"sort-packages" : true
+	},
+	"autoload" : {
+		"psr-4" : {
+			"Ernadoo\\MondialRelayBundle\\" : ""
+		}
+	}
+}
