@@ -21,8 +21,8 @@ class ErnadooMondialRelayExtension extends Extension
 
 		$config = $this->processConfiguration($configuration, $configs);
 
-		$definition = $container->getDefinition('acme.social.twitter_client');
-		$definition->replaceArgument(0, $config['twitter']['client_id']);
-		$definition->replaceArgument(1, $config['twitter']['client_secret']);
+		$definition = $container->getDefinition('ernadoo.mondial_relay.client');
+		$definition->replaceArgument(0, $config['api']['credentials']['customer_code']);
+		$definition->replaceArgument(1, $config['api']['credentials']['secret_key']);
 	}
 }

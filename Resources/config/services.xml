@@ -2,12 +2,13 @@
 <container xmlns="http://symfony.com/schema/dic/services"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://symfony.com/schema/dic/services
-        http://symfony.com/schema/dic/services/services-1.0.xsd">
+http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="acme.social.twitter_client" class="Acme\SocialBundle\TwitterClient">
+        <service id="ernadoo.mondial_relay.client" class="MondialRelay\ApiClient">
             <argument></argument> <!-- will be filled in with client_id dynamically -->
             <argument></argument> <!-- will be filled in with client_secret dynamically -->
         </service>
+        <service id="MondialRelay\ApiClient" alias="ernadoo.mondial_relay.client" />
     </services>
 </container>
