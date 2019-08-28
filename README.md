@@ -7,7 +7,7 @@ Applications that use Symfony Flex
 Open a command console, enter your project directory and execute:
 
 ```console
-$ composer require <package-name>
+$ composer require ernadoo/mondial-relay-bundle
 ```
 
 Applications that don't use Symfony Flex
@@ -19,7 +19,7 @@ Open a command console, enter your project directory and execute the
 following command to download the latest stable version of this bundle:
 
 ```console
-$ composer require <package-name>
+$ composer require ernadoo/mondial-relay-bundle
 ```
 
 This command requires you to have Composer installed globally, as explained
@@ -36,6 +36,6 @@ in the `config/bundles.php` file of your project:
 
 return [
     // ...
-    ErnadoO\MondialRelayBundle\ErnadoOMondialRelayBundle::class => ['all' => true],
+    Ernadoo\MondialRelayBundle\ErnadooMondialRelayBundle::class => ['all' => true],
 ];
 ```
