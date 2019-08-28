@@ -5,10 +5,11 @@
 http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="ernadoo.mondial_relay.client" class="MondialRelay\ApiClient">
+        <service id="ernadoo.mondial_relay.client" class="Ernadoo\MondialRelay\MondialRelayWebAPI">
+            <argument></argument> <!-- will be filled in with client_id dynamically -->
             <argument></argument> <!-- will be filled in with client_id dynamically -->
             <argument></argument> <!-- will be filled in with client_secret dynamically -->
         </service>
-        <service id="MondialRelay\ApiClient" alias="ernadoo.mondial_relay.client" />
+		<service id="Ernadoo\MondialRelay\MondialRelayWebAPI" alias="ernadoo.mondial_relay.client" />
     </services>
 </container>
