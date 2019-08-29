@@ -36,6 +36,6 @@ in the `config/bundles.php` file of your project:
 
 return [
     // ...
-    Ernadoo\MondialRelayBundle\ErnadooMondialRelayBundle::class => ['all' => true],
+    ErnadoO\MondialRelayBundle\ErnadoOMondialRelayBundle::class => ['all' => true],
 ];
 ```

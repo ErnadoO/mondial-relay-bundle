@@ -1,13 +1,13 @@
 <?php
 
-namespace Ernadoo\MondialRelayBundle\DependencyInjection;
+namespace ErnadoO\MondialRelayBundle\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
-class ErnadooMondialRelayExtension extends Extension
+class ErnadoOMondialRelayExtension extends Extension
 {
 	public function load(array $configs, ContainerBuilder $container)
 	{
