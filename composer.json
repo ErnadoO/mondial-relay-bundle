@@ -13,14 +13,14 @@
 	],
 	"require" : {
 		"php" : "^7.1",
-		"ernadoo/mondial-relay" : "dev-master"
+		"ernadoo/mondial-relay" : "^1.0"
 	},
 	"config" : {
 		"sort-packages" : true
 	},
 	"autoload" : {
 		"psr-4" : {
-			"ErnadoO\\MondialRelayBundle\\" : ""
+			"Ernadoo\\MondialRelayBundle\\" : ""
 		}
 	}
 }
