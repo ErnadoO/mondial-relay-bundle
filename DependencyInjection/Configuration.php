@@ -35,6 +35,7 @@ class Configuration implements ConfigurationInterface
 							->children()
 								->scalarNode('customer_code')->isRequired()->cannotBeEmpty()->end()
 								->scalarNode('secret_key')->isRequired()->cannotBeEmpty()->end()
+								->scalarNode('brand_id')->isRequired()->cannotBeEmpty()->end()
 							->end()
 						->end()
 					->end()
