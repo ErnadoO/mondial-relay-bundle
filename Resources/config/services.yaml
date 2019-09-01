@@ -1,7 +1,7 @@
 services:
     Ernadoo\MondialRelay\MondialRelayWebAPI:
         class: Ernadoo\MondialRelay\MondialRelayWebAPI
-        arguments: ['', '', '']
+        arguments: ['@Symfony\Component\Stopwatch\Stopwatch', '', '', '']
 
     Ernadoo\MondialRelayBundle\DataCollector\MondialRelayDataCollector:
         class: Ernadoo\MondialRelayBundle\DataCollector\MondialRelayDataCollector

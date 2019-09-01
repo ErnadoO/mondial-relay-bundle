@@ -1,56 +1,121 @@
-{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+{% extends 'WebProfilerBundle:Profiler:layout.html.twig' %}
 
 {% block toolbar %}
-    {% set icon %}
-        {# this is the content displayed as a panel in the toolbar #}
-        <img width="20" height="28" alt="Redis" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAcCAYAAABh2p9gAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAv5JREFUeNrsVd9L01EUP9/tbm5ubtI2VqAOYpJP0WCYNOilQAiySbICHyp67CXqrf8jqKeejAVJ9GAUmUEMfYjSl5IYexqM1G3Mn1O3uT6fy+4QMV/yoQe/cLi7557zOZ/zOder1Ww25Tg/mxzzdwL4HwKqZDJ51Pkpy7JGtre3r9dqtbMul2vB4XBM4qp9gr962JVTBx0IcsIS+HkL64jP5zuTSqWkXq9LPp+/MDs7e1cp9QuAk4h5iZgfhwIioB8sxvb29m673e7z2Eu1WpVwOCwDAwMSi8VkZmZGcrmcFIvFc7u7u09sNttjgH8B6CvYW8AUrdHR0SvYPETA1Wg06hofH5dQKMQCUqlUZGJiQhYXFyWRSMj8/Lxsbm7KxsZG27q7u3W80+ksAeepWltbe9TZ2XmNLDs6OiQQCEhvb6/Y7Xa2r1uFhjI3Nycej0dQWPtZEJoKutGxOzs7ARRIWWjlPdCHASoQXAd4vV4N1NPTI0NDQxKJRHSR6elpSafTgjbboCxApltbW9JoNL4qv9//HVoNsz1WIksGoIgUCgXJZrPS19cny8vLMjU1pWOQqPUlCJi12fIWKLQRwSR1WwTiykACMolAmUxGF+LeALEDMu3q6tJSsDvkDqqlpaUg26ST4mLSWngmQV/BJDU4pq/P2Cr36EzLQ3aMLZfLZGtXSMgRgMZAApMxE8iGftMWWZIR2yPD9fV1fW7YImdBBYNBDydsWLESmXFINJxrzfi1psl7qKUhaxYhAbJFXL8qlUqnmcjKPDCsWJ3WElsDmiFQBiMTAenjUFHEr4D6e3V1VQ+EiYYV2yCwGQS1o/C8yIwhKP0rKyvmbjbhe8c/vQf48Rn7+wC4BBY2JjKJjM0NMBqyTRYnGIvCX4K9gT0D1jcrHo/vf8oGcXAP4DeQGKZmbI1mWjZsEfcTrhd8IGCF9puwD9A8ElxCSLqJ9Q7Wi3S3jhs4/4D1OewjrHrwtfoboLTeOjvsMmwMVoO9hmWOekCtk//L//z9EWAADA/Sh+MqnZ4AAAAASUVORK5CYII="/>
-        <span class="sf-toolbar-value">Request</span>
-    {% endset %}
+    {% if collector.queries|length > 0 %}
+    {% set queryLabel = collector.queries|length == 1 ? 'query' : 'queries' %}
+        {% set icon %}
+            {{ include('@BazingaGeocoder/Collector/icon.svg') }}
+            <span class="sf-toolbar-value">{{ collector.queries|length }}</span>
+            <span class="sf-toolbar-label">{{ queryLabel }} in</span>
+            <span class="sf-toolbar-value">{{ collector.totalDuration|number_format }}</span>
+            <span class="sf-toolbar-label">ms</span>
+        {% endset %}
+        {% set text %}
+            <div class="sf-toolbar-info-piece">
+                <b>{{ collector.queries|length }} {{ queryLabel }}</b>
+            </div>
+            <div class="sf-toolbar-info-piece">
+                <table class="sf-toolbar-ajax-requests">
+                    <thead>
+                    <tr>
+                        <th>Query</th>
+                        <th>Time</th>
+                    </tr>
+                    </thead>
+                    <tbody class="sf-toolbar-ajax-request-list">
+                    {% for query in collector.queries %}
+                        <tr>
+                            <td>{{ query.query }}</td>
+                            <td>{{ query.duration == 0 ? 'n/a' : query.duration|number_format ~ ' ms'}}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endset %}
 
-    {% set text %}
-        {# this is the content displayed when hovering the mouse over
-           the toolbar panel #}
-        <div class="sf-toolbar-info-piece">
-            <b>Method</b>
-            <span>{{ collector.method }}</span>
-        </div>
+        {% include '@WebProfiler/Profiler/toolbar_item.html.twig' with { 'link': profiler_url } %}
+    {% endif %}
 
-        <div class="sf-toolbar-info-piece">
-            <b>Accepted content type</b>
-            <span>{{ collector.acceptableContentTypes|join(', ') }}</span>
-        </div>
-    {% endset %}
-
-    {# the 'link' value set to 'false' means that this panel doesn't
-       show a section in the web profiler #}
-    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: false }) }}
-{% endblock %}
-
-{% block head %}
-    {# Optional. Here you can link to or define your own CSS and JS contents. #}
-    {# Use {{ parent() }} to extend the default styles instead of overriding them. #}
 {% endblock %}
 
 {% block menu %}
     {# This left-hand menu appears when using the full-screen profiler. #}
-    <span class="label">
-        <span class="icon"><img src="" alt=""/></span>
-        <strong>Request</strong>
+    <span class="label {{ collector.queries|length == 0 ? 'disabled' }}">
+        <span class="icon">
+            {{ include('@BazingaGeocoder/Collector/icon.svg') }}
+        </span>
+        <strong>API Mondial Relay</strong>
     </span>
 {% endblock %}
 
 {% block panel %}
-    {# Optional, for showing the most details. #}
-    <h2>Acceptable Content Types</h2>
-    <table>
-        <tr>
-            <th>Content Type</th>
-        </tr>
+    <style>
+        .sf-toggle-content.sf-toggle-visible {
+            display: table-row;
+        }
+    </style>
+    <h2>Geocoder</h2>
 
-        {% for type in collector.acceptableContentTypes %}
-        <tr>
-            <td>{{ type }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="sf-tabs">
+        {% if collector.queries|length > 0 %}
+            <div class="tab-content">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="min-width: 2rem;"></th>
+                        <th style="width: 40%">Query</th>
+                        <th style="width: 60%">Result</th>
+                        <th style="min-width: 4rem;">Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for query in collector.queries %}
+                    <tr>
+                        <td class="font-normal text-small" nowrap="">
+                            <span class="colored text-bold"># {{ loop.index }}</span>
+                        </td>
+                        <td class="font-normal">
+                            <span class="dump-inline">
+                                {{ query.query|join('&') }}
+                            </span>
+                        </td>
+                        <td class="font-normal">
+                            <span class="dump-inline">
+                                {% if query.result.message is defined %}
+                                    Exception
+                                {% else %}
+                                    {{ dump(query.resultCount) }} Result(s)
+                                {% endif %}
+                            </span>
+                            <span class="metadata">
+                                <a class="btn btn-link text-small sf-toggle" data-toggle-selector="#mondialrelay-{{ loop.index }}-details" data-toggle-alt-content="Hide">Show</a>
+                            </span>
+                        </td>
+                        <td class="font-normal text-small" nowrap="">
+                            {{ query.duration|number_format }} ms
+                        </td>
+                    </tr>
+                    <tr id="mondialrelay-{{ loop.index }}-details" class="context sf-toggle-content sf-toggle-hidden">
+                        <td></td>
+                        <td>{{ profiler_dump(query.query, maxDepth=1) }}</td>
+                        {% if query.result.message is defined %}
+                        <td>{{ profiler_dump(query.result, maxDepth=1) }}</td>
+                        {% else %}
+                        <td>{{ profiler_dump(query.result) }}</td>
+                        {% endif %}
+                        <td></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            </div>
+
+        {% else %}
+        <div class="empty">
+            <p>No queries were executed.</p>
+        </div>
+        {% endif %}
+    </div>
 {% endblock %}

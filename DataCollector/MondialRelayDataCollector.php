@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 class MondialRelayDataCollector extends DataCollector
 {
 	/**
-	 * @var MyService
+	 * @var MondialRelayWebAPI
 	 */
 	protected $service;
 
@@ -27,10 +27,13 @@ class MondialRelayDataCollector extends DataCollector
 
 	public function collect(Request $request, Response $response, \Exception $exception = null)
 	{
-		$this->data = [
-			'method' => $request->getMethod(),
-			'acceptable_content_types' => $request->getAcceptableContentTypes(),
-		];
+		$this->data = $this->service->getProfiles();
+
+		foreach ($this->data as &$data)
+		{
+			$data['query'] = $this->cloneVar($data['query']);
+			$data['result'] = $this->cloneVar($data['result']);
+		}
 	}
 
 	public function reset()
@@ -43,13 +46,24 @@ class MondialRelayDataCollector extends DataCollector
 		return 'app.request_collector';
 	}
 
-	public function getMethod()
+	/**
+	 * Returns an array of collected requests.
+	 */
+	public function getQueries(): array
 	{
-		return $this->data['method'];
+		return $this->data;
 	}
 
-	public function getAcceptableContentTypes()
+	/**
+	 * Returns the execution time of all collected requests in seconds.
+	 */
+	public function getTotalDuration(): float
 	{
-		return $this->data['acceptable_content_types'];
+		$time = 0;
+		foreach ($this->data as $command) {
+			$time += $command['duration'];
+		}
+
+		return $time;
 	}
 }
