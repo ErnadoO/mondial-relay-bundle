@@ -1,0 +1,11 @@
+services:
+    Ernadoo\MondialRelay\MondialRelayWebAPI:
+        class: Ernadoo\MondialRelay\MondialRelayWebAPI
+        arguments: ['', '', '']
+
+    Ernadoo\MondialRelayBundle\DataCollector\MondialRelayDataCollector:
+        class: Ernadoo\MondialRelayBundle\DataCollector\MondialRelayDataCollector
+        arguments: ['@Ernadoo\MondialRelay\MondialRelayWebAPI']
+        public: false
+        tags:
+            - { name: data_collector, template: '@ErnadooMondialRelay/Collector/mondialrelay.html.twig', id: "app.request_collector" }
