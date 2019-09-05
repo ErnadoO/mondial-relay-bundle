@@ -25,5 +25,7 @@ class ErnadooMondialRelayExtension extends Extension
 		$definition->replaceArgument(1, $config['api']['wsdl']);
 		$definition->replaceArgument(2, $config['api']['credentials']['customer_code']);
 		$definition->replaceArgument(3, $config['api']['credentials']['secret_key']);
+		
+		$container->setParameter('ernadoo_mondial_relay.customer_code', $config['api']['credentials']['customer_code'] ?? null);
 	}
 }

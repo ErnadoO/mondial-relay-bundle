@@ -9,3 +9,8 @@ services:
         public: false
         tags:
             - { name: data_collector, template: '@ErnadooMondialRelay/Collector/mondialrelay.html.twig', id: "app.request_collector" }
+
+    Ernadoo\MondialRelayBundle\Twig\MondialRelayTwigExtension:
+        class: Ernadoo\MondialRelayBundle\Twig\MondialRelayTwigExtension
+        arguments: ['%ernadoo_mondial_relay.customer_code%']
+        tags: [twig.extension]
