@@ -14,7 +14,7 @@
 	"require" : {
 		"php" : "^7.1",
 		"ernadoo/mondial-relay" : "^1.0",
-		"symfony/framework-bundle": "^4.0",
+		"symfony/framework-bundle": "^4.0"
 	},
 	"config" : {
 		"sort-packages" : true
