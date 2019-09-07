@@ -1,7 +1,7 @@
 {
 	"name" : "ernadoo/mondial-relay-bundle",
 	"type" : "symfony-bundle",
-	"description" : "Mondial Relay Bundle for Symfony 4",
+	"description" : "Mondial Relay Bundle for Symfony 5",
 	"keywords" : [
 		"Mondial Relay"
 	],
@@ -14,7 +14,7 @@
 	"require" : {
 		"php" : "^7.1",
 		"ernadoo/mondial-relay" : "^1.0",
-		"symfony/framework-bundle": "^4.0",
+		"symfony/framework-bundle": "^5.0"
 	},
 	"config" : {
 		"sort-packages" : true
