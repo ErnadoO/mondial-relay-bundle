@@ -10,7 +10,7 @@ final class MondialRelayTwigExtension extends AbstractExtension implements Globa
      * @var string
      */
 	private $customerCode;
-    
+
     public function __construct(string $customerCode)
     {
     	$this->customerCode = $customerCode;
@@ -18,7 +18,7 @@ final class MondialRelayTwigExtension extends AbstractExtension implements Globa
     /**
      * @inheritDoc
      */
-    public function getGlobals()
+    public function getGlobals(): array
     {
         return [
             'ernadoo_mondial_relay' => [
