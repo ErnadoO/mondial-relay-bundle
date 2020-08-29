@@ -1,9 +1,8 @@
 <?php
 
-// src/DataCollector/RequestCollector.php
 namespace Ernadoo\MondialRelayBundle\DataCollector;
 
-use Ernadoo\MondialRelay\MondialRelayWebAPI;
+use Ernadoo\MondialRelayBundle\SoapClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
@@ -11,7 +10,7 @@ use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 class MondialRelayDataCollector extends DataCollector
 {
 	/**
-	 * @var MondialRelayWebAPI
+	 * @var SoapClient
 	 */
 	protected $service;
 
@@ -20,7 +19,7 @@ class MondialRelayDataCollector extends DataCollector
 	 *
 	 * @param MyService $service
 	 */
-	public function __construct(MondialRelayWebAPI $service)
+	public function __construct(\SoapClient $service)
 	{
 		$this->service = $service;
 	}
@@ -31,7 +30,8 @@ class MondialRelayDataCollector extends DataCollector
 
 		foreach ($this->data as &$data)
 		{
-			$data['query'] = $this->cloneVar($data['query']);
+			$data['method']	= $this->cloneVar($data['method']);
+			$data['params'] = $this->cloneVar($data['params']);
 			$data['result'] = $this->cloneVar($data['result']);
 		}
 	}
@@ -43,7 +43,7 @@ class MondialRelayDataCollector extends DataCollector
 
 	public function getName()
 	{
-		return 'app.request_collector';
+		return 'ernadoo.mondialrelay';
 	}
 
 	/**

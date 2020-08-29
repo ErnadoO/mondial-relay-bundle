@@ -1,15 +1,18 @@
 services:
-    Ernadoo\MondialRelay\MondialRelayWebAPI:
-        class: Ernadoo\MondialRelay\MondialRelayWebAPI
-        arguments: ['@Symfony\Component\Stopwatch\Stopwatch', '', '', '']
+    Ernadoo\MondialRelayBundle\SoapClient:
+        arguments: ['@Symfony\Component\Stopwatch\Stopwatch', '', '']
+        autowire: true
+        
+    MondialRelay\ApiClient:
+        class: MondialRelay\ApiClient
+        arguments: ['@Ernadoo\MondialRelayBundle\SoapClient', '', '']
         autowire: true
 
     Ernadoo\MondialRelayBundle\DataCollector\MondialRelayDataCollector:
         class: Ernadoo\MondialRelayBundle\DataCollector\MondialRelayDataCollector
-        arguments: ['@Ernadoo\MondialRelay\MondialRelayWebAPI']
-        public: false
+        arguments: ['@Ernadoo\MondialRelayBundle\SoapClient']
         tags:
-            - { name: data_collector, template: '@ErnadooMondialRelay/Collector/mondialrelay.html.twig', id: "app.request_collector" }
+            - { name: data_collector, template: '@ErnadooMondialRelay/Collector/mondialrelay.html.twig', id: "ernadoo.mondialrelay" }
 
     Ernadoo\MondialRelayBundle\Twig\MondialRelayTwigExtension:
         class: Ernadoo\MondialRelayBundle\Twig\MondialRelayTwigExtension
