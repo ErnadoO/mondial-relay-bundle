@@ -1,7 +1,7 @@
 {
 	"name" : "ernadoo/mondial-relay-bundle",
 	"type" : "symfony-bundle",
-	"description" : "Mondial Relay Bundle for Symfony 5",
+	"description" : "Mondial Relay Bundle for Symfony",
 	"keywords" : [
 		"Mondial Relay"
 	],
@@ -14,7 +14,7 @@
 	"require" : {
 		"php" : "^7.1 || ^8.0",
 		"quentinbontemps/php-mondialrelay-api" : "^1.0",
-		"symfony/framework-bundle" : "^5.0",
+		"symfony/framework-bundle" : "^5.4 || ^6.4",
 		"symfony/profiler-pack" : "*"
 	},
 	"config" : {
