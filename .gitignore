@@ -1,5 +1,6 @@
 composer.lock
 phpunit.xml
+!phpunit.xml.dist
 vendor
 log
 Tests/App/cache

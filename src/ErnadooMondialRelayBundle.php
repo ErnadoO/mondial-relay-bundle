@@ -13,6 +13,7 @@ use Ernadoo\MondialRelayBundle\DataCollector\ProfilingMondialRelayClient;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\HttpClient\Psr18Client;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -65,19 +66,30 @@ class ErnadooMondialRelayBundle extends AbstractBundle
         ;
     }
 
+    /** @param array<string, mixed> $config */
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
         $services = $container->services();
+
+        // ── PSR-18 client (wraps Symfony HttpClient) ──────────────────────────
+        // Psr18Client implements PSR-18 (ClientInterface) + PSR-17 (RequestFactoryInterface
+        // + StreamFactoryInterface), so a single instance covers all three.
+        // REST calls appear automatically in the Symfony Profiler HTTP panel.
+
+        $services->set(Psr18Client::class)->autowire();
 
         // ── Core library clients ──────────────────────────────────────────────
 
         $services
             ->set(RestShipmentClient::class)
             ->args([
-                '$login'      => $config['credentials']['login'],
-                '$password'   => $config['credentials']['password'],
-                '$customerId' => $config['credentials']['customer_id'],
-                '$sandbox'    => $config['sandbox'],
+                '$client'         => service(Psr18Client::class),
+                '$requestFactory' => service(Psr18Client::class),
+                '$streamFactory'  => service(Psr18Client::class),
+                '$login'          => $config['credentials']['login'],
+                '$password'       => $config['credentials']['password'],
+                '$customerId'     => $config['credentials']['customer_id'],
+                '$sandbox'        => $config['sandbox'],
             ]);
 
         $services

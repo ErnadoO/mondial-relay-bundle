@@ -71,7 +71,7 @@ final class ProfilingMondialRelayClientTest extends TestCase
     public function testErrorIsRecordedInProfileAndRethrown(): void
     {
         $inner = $this->createMock(MondialRelayClientInterface::class);
-        $inner->method('createShipment')->willThrowException(ApiException::fromApiErrors(['30' => 'Adresse invalide']));
+        $inner->method('createShipment')->willThrowException(ApiException::fromApiErrors(['ERR30' => 'Adresse invalide']));
 
         $client = new ProfilingMondialRelayClient($inner);
 
