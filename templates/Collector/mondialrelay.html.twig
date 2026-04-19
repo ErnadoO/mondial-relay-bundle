@@ -1,0 +1,90 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set icon %}
+        {{ include('@ErnadooMondialRelay/Collector/icon.svg') }}
+        <span class="sf-toolbar-value">{{ collector.callCount }}</span>
+        <span class="sf-toolbar-info-piece-additional-detail">
+            <span class="sf-toolbar-label">in</span>
+            <span class="sf-toolbar-value">{{ '%0.2f'|format(collector.totalDuration) }}</span>
+            <span class="sf-toolbar-label">ms</span>
+        </span>
+    {% endset %}
+
+    {% set text %}
+        <div class="sf-toolbar-info-piece">
+            <b>MR API calls</b>
+            <span class="sf-toolbar-status {% if collector.callCount > 0 %}sf-toolbar-status-yellow{% endif %}">
+                {{ collector.callCount }}
+            </span>
+        </div>
+        <div class="sf-toolbar-info-piece">
+            <b>Total time</b>
+            <span>{{ '%0.2f'|format(collector.totalDuration) }} ms</span>
+        </div>
+    {% endset %}
+
+    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: profiler_url }) }}
+{% endblock %}
+
+{% block menu %}
+    <span class="label {% if collector.callCount == 0 %}disabled{% endif %}">
+        <span class="icon">{{ include('@ErnadooMondialRelay/Collector/icon.svg') }}</span>
+        <strong>Mondial Relay</strong>
+        {% if collector.callCount > 0 %}
+            <span class="count">
+                <span>{{ collector.callCount }}</span>
+            </span>
+        {% endif %}
+    </span>
+{% endblock %}
+
+{% block panel %}
+    <h2>Mondial Relay API Calls</h2>
+
+    {% if collector.callCount == 0 %}
+        <div class="empty">
+            <p>No Mondial Relay API calls were made during this request.</p>
+        </div>
+    {% else %}
+        <div class="metrics">
+            <div class="metric">
+                <span class="value">{{ collector.callCount }}</span>
+                <span class="label">API calls</span>
+            </div>
+            <div class="metric">
+                <span class="value">{{ '%0.2f'|format(collector.totalDuration) }} ms</span>
+                <span class="label">Total time</span>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Method</th>
+                    <th>Parameters</th>
+                    <th>Result</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i, call in collector.calls %}
+                    <tr {% if call.error %}class="status-error"{% endif %}>
+                        <td class="text-small">{{ i + 1 }}</td>
+                        <td><code>{{ call.method }}</code></td>
+                        <td>{{ profiler_dump(call.params, maxDepth=2) }}</td>
+                        <td>
+                            {% if call.error %}
+                                <span class="status-error">{{ call.error }}</span>
+                            {% else %}
+                                {{ profiler_dump(call.result, maxDepth=1) }}
+                            {% endif %}
+                        </td>
+                        <td class="text-small" nowrap>{{ '%0.2f'|format(call.duration) }} ms</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

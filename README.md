@@ -1,96 +1,102 @@
-# Symfony Bundle to use the MondialRelay API
+# ernadoo/mondial-relay-bundle
 
-## Description
-This package uses [QuentinBontemps/php-mondialrelay-api](https://github.com/QuentinBontemps/php-mondialrelay-api).
+Symfony bundle for the [ernadoo/mondial-relay](https://github.com/ernadoo/mondial-relay) PHP SDK.
 
-This client allow to use the [Mondial Relay Soap API](https://api.mondialrelay.com/Web_Services.asmx) with Symfony.
+- Autowiring of `MondialRelayClientInterface`
+- Symfony Profiler integration (call log, duration)
+- Twig helper for the relay point selection widget
 
-Installation
-============
+## Requirements
 
-Applications that use Symfony Flex
-----------------------------------
+- PHP 8.2+
+- Symfony 6.4 or 7.x
 
-Open a command console, enter your project directory and execute:
+## Installation
 
-```console
-$ composer require ernadoo/mondial-relay-bundle
+```bash
+composer require ernadoo/mondial-relay-bundle
 ```
 
-Applications that don't use Symfony Flex
-----------------------------------------
-
-### Step 1: Download the Bundle
-
-Open a command console, enter your project directory and execute the
-following command to download the latest stable version of this bundle:
-
-```console
-$ composer require ernadoo/mondial-relay-bundle
-```
-
-This command requires you to have Composer installed globally, as explained
-in the [installation chapter](https://getcomposer.org/doc/00-intro.md)
-of the Composer documentation.
-
-### Step 2: Enable the Bundle
-
-Then, enable the bundle by adding it to the list of registered bundles
-in the `config/bundles.php` file of your project:
+If Symfony Flex is enabled the bundle registers automatically. Otherwise add it to `config/bundles.php`:
 
 ```php
-// config/bundles.php
-
 return [
     // ...
     Ernadoo\MondialRelayBundle\ErnadooMondialRelayBundle::class => ['all' => true],
 ];
 ```
 
-### Step 3: Configure the Bundle
+## Configuration
+
+Create `config/packages/ernadoo_mondial_relay.yaml`:
 
 ```yaml
-# config/packages/ernadoo_mondial_relay.yaml
 ernadoo_mondial_relay:
-    api:
-        wsdl: https://api.mondialrelay.com/Web_Services.asmx?WSDL
-        options:
-            trace: '%kernel.debug%'
-            #keep_alive : false
-            #cache_wsdl : !php/const WSDL_CACHE_NONE
+    credentials:
+        login:       '%env(MR_LOGIN)%'
+        password:    '%env(MR_PASSWORD)%'
+        customer_id: '%env(MR_CUSTOMER_ID)%'
+        secret_key:  '%env(MR_SECRET_KEY)%'
+    sandbox: false   # set to true (or '%kernel.debug%') for the MR sandbox
+```
 
-        credentials:
-            customer_code:
-            secret_key:
-            brand_id:
+Add the environment variables to your `.env`:
+
+```dotenv
+MR_LOGIN=your-login
+MR_PASSWORD=your-password
+MR_CUSTOMER_ID=BDTEST
+MR_SECRET_KEY=your-secret-key
 ```
 
 ## Usage
 
+Inject `MondialRelayClientInterface` anywhere in your Symfony application:
+
 ```php
-# src\Controller\DefaultController.php
-<?php
+use Ernadoo\MondialRelay\Contract\MondialRelayClientInterface;
+use Ernadoo\MondialRelay\Shipment\Address;
+use Ernadoo\MondialRelay\Shipment\Parcel;
+use Ernadoo\MondialRelay\Shipment\ShipmentRequest;
 
-namespace App\Controller;
-
-use MondialRelay\ApiClient;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-
-class DefaultController extends AbstractController
+class LabelController extends AbstractController
 {
-	public function findDeliveryPoints(ApiClient $mondialRelayClient)
-	{
-		$shops = $mondialRelayClient->findDeliveryPoints([
-		    'Pays'            => 'FR',
-		    'Ville'           => 'Paris',
-		    'CP'              => '75000',
-		    'DelaiEnvoi'      => "0",
-		    'RayonRecherche'  => '20',
-		    'NombreResultats' => '10',
-		]);
-	}
+    public function __construct(
+        private readonly MondialRelayClientInterface $mondialRelay,
+    ) {}
+
+    public function print(): Response
+    {
+        $response = $this->mondialRelay->createShipment(new ShipmentRequest(
+            sender:    new Address('FR', '59510', 'Hem', '4 Av. Pinay', 'Erwan', 'Nader'),
+            recipient: new Address('FR', '75001', 'Paris', '1 Rue de la Paix', 'Jane', 'Doe'),
+            parcels:   [new Parcel(500)],
+        ));
+
+        return $this->redirect($response->labelOutput); // download PDF
+    }
 }
 ```
 
-## Contribution
-Contributions are always welcome.
+## Twig widget
+
+```twig
+{# Renders the Mondial Relay relay-point selection widget #}
+{{ mondial_relay_widget('FR', '75001') }}
+
+{# Just the customer ID, for your own JS integration #}
+{{ mondial_relay_customer_id() }}
+```
+
+## Documentation
+
+- [Installation & configuration](docs/01-installation.md)
+- [Usage in controllers & services](docs/02-usage.md)
+- [Twig widget](docs/03-twig.md)
+
+## Tests
+
+```bash
+composer install
+vendor/bin/phpunit
+```

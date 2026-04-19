@@ -1,31 +1,43 @@
 {
-	"name" : "ernadoo/mondial-relay-bundle",
-	"type" : "symfony-bundle",
-	"description" : "Mondial Relay Bundle for Symfony",
-	"keywords" : [
-		"Mondial Relay"
-	],
-	"license" : "MIT",
-	"authors" : [{
-			"name" : "Erwan Nader",
-			"role" : "Developer"
-		}
-	],
-	"require" : {
-		"php" : "^7.1 || ^8.0",
-		"quentinbontemps/php-mondialrelay-api" : "^1.0",
-		"symfony/framework-bundle" : "^5.4 || ^6.4",
-		"symfony/profiler-pack" : "*"
-	},
-	"config" : {
-		"sort-packages" : true
-	},
-	"autoload" : {
-		"psr-4" : {
-			"Ernadoo\\MondialRelayBundle\\" : ""
-		}
-	},
-	"extra": {
+    "name": "ernadoo/mondial-relay-bundle",
+    "type": "symfony-bundle",
+    "description": "Mondial Relay Bundle for Symfony 6.4 / 7.x",
+    "keywords": ["mondial-relay", "shipping", "symfony", "bundle"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Erwan Nader",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "ernadoo/mondial-relay": "^3.0",
+        "symfony/framework-bundle": "^6.4 || ^7.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.11",
+        "phpunit/phpunit": "^11.0",
+        "symfony/stopwatch": "^6.4 || ^7.0",
+        "twig/twig": "^3.0"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "phpstan": "phpstan analyse"
+    },
+    "suggest": {
+        "symfony/stopwatch": "Required for the Symfony Profiler integration",
+        "twig/twig": "Required to use the Twig extension (relay point widget helper)"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "Ernadoo\\MondialRelayBundle\\": "src/"
+        }
+    },
+    "extra": {
         "symfony": {
             "endpoint": "https://api.github.com/repos/ernadoo/recipes/contents/index.json?ref=flex/main"
         }
