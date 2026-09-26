@@ -7,6 +7,7 @@ namespace Ernadoo\MondialRelayBundle\Tests\DependencyInjection;
 use Ernadoo\MondialRelayBundle\ErnadooMondialRelayBundle;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
+use Symfony\Component\AssetMapper\AssetMapperBundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 
@@ -17,11 +18,15 @@ final class AssetMapperTest extends TestCase
         $builder = new ContainerBuilder();
         $builder->setParameter('kernel.environment', 'test');
         $builder->setParameter('kernel.build_dir', sys_get_temp_dir());
-        $builder->setParameter('kernel.bundles_metadata', [
+        $bundlesMetadata = [
             'FrameworkBundle' => ['path' => \dirname((string) (new \ReflectionClass(FrameworkBundle::class))->getFileName())],
-            // Registered automatically by FrameworkBundle since Symfony 8.2
-            'AssetMapperBundle' => ['path' => ''],
-        ]);
+        ];
+        // Since Symfony 8.2, AssetMapper is its own bundle, registered by FrameworkBundle;
+        // before, FrameworkBundle provides its configuration. The CI matrix covers both.
+        if (class_exists(AssetMapperBundle::class)) {
+            $bundlesMetadata['AssetMapperBundle'] = ['path' => \dirname((string) (new \ReflectionClass(AssetMapperBundle::class))->getFileName())];
+        }
+        $builder->setParameter('kernel.bundles_metadata', $bundlesMetadata);
 
         $extension = (new ErnadooMondialRelayBundle())->getContainerExtension();
         self::assertInstanceOf(PrependExtensionInterface::class, $extension);
