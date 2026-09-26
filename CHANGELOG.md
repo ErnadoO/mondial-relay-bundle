@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `ShipmentRequest::$deliveryLocation` (e.g. `FR-066974`). The previous implementation never
   initialised the widget nor filled its input, so no working integration can break.
 
+### Documentation
+
+- Installation and usage docs are merged into the README; the picker has its own page,
+  `docs/relay-point-picker.md`.
+
 ## [3.1.0] - 2026-09-26
 
 ### Added

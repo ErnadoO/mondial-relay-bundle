@@ -77,7 +77,7 @@ class ErnadooMondialRelayBundle extends AbstractBundle
                         ->scalarNode('login')
                             ->isRequired()
                             ->cannotBeEmpty()
-                            ->info('V2 API login — MR Connect → Administration → Configuration des API')
+                            ->info('V2 API login — MR Connect → Administration → API configuration')
                         ->end()
                         ->scalarNode('password')
                             ->isRequired()

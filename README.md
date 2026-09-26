@@ -2,9 +2,10 @@
 
 Symfony bundle for the [ernadoo/mondial-relay](https://github.com/ernadoo/mondial-relay) PHP SDK.
 
-- Autowiring of `MondialRelayClientInterface`
-- Symfony Profiler integration (call log, duration)
-- Relay point picker: a Stimulus controller (Symfony UX) and a Twig helper (optional, requires `symfony/stimulus-bundle`)
+- Autowiring of `MondialRelayClientInterface`: label creation and relay point search
+- Symfony Profiler integration (call log, duration, errors)
+- Relay point picker: a Stimulus controller (Symfony UX) and a Twig helper
+  (optional, requires `symfony/stimulus-bundle`)
 
 ## Requirements
 
@@ -33,50 +34,112 @@ Create `config/packages/ernadoo_mondial_relay.yaml`:
 ```yaml
 ernadoo_mondial_relay:
     credentials:
-        login:       '%env(MR_LOGIN)%'
-        password:    '%env(MR_PASSWORD)%'
-        customer_id: '%env(MR_CUSTOMER_ID)%'
-        secret_key:  '%env(MR_SECRET_KEY)%'
-    sandbox: false   # set to true (or '%kernel.debug%') for the MR sandbox
+        login:       '%env(MR_LOGIN)%'        # V2 API login (label creation)
+        password:    '%env(MR_PASSWORD)%'     # V2 API password
+        customer_id: '%env(MR_CUSTOMER_ID)%'  # 8-character brand code
+        secret_key:  '%env(MR_SECRET_KEY)%'   # SOAP secret key (relay point search)
+    sandbox: false
 ```
 
-Add the environment variables to your `.env`:
+Add the environment variables to your `.env.local`:
 
 ```dotenv
-MR_LOGIN=your-login
-MR_PASSWORD=your-password
+MR_LOGIN=your-v2-login
+MR_PASSWORD=your-v2-password
 MR_CUSTOMER_ID=BDTEST
-MR_SECRET_KEY=your-secret-key
+MR_SECRET_KEY=your-soap-key
+```
+
+### Sandbox
+
+`sandbox: true` sends label creation to `https://connect-api-sandbox.mondialrelay.com/api/shipment`,
+so no real label is created. Relay point search always uses the production SOAP endpoint.
+Enable it outside production, for example:
+
+```yaml
+when@dev:
+    ernadoo_mondial_relay:
+        sandbox: true
 ```
 
 ## Usage
 
-Inject `MondialRelayClientInterface` anywhere in your Symfony application:
+Inject `MondialRelayClientInterface` anywhere in your application.
+
+### Creating a label
 
 ```php
 use Ernadoo\MondialRelay\Contract\MondialRelayClientInterface;
+use Ernadoo\MondialRelay\Exception\ApiException;
+use Ernadoo\MondialRelay\Exception\MondialRelayException;
 use Ernadoo\MondialRelay\Shipment\Address;
+use Ernadoo\MondialRelay\Shipment\DeliveryMode;
 use Ernadoo\MondialRelay\Shipment\Parcel;
 use Ernadoo\MondialRelay\Shipment\ShipmentRequest;
 
-class LabelController extends AbstractController
+final class ShippingService
 {
     public function __construct(
         private readonly MondialRelayClientInterface $mondialRelay,
-    ) {}
+    ) {
+    }
 
-    public function print(): Response
+    public function createLabel(): string
     {
-        $response = $this->mondialRelay->createShipment(new ShipmentRequest(
-            sender:    new Address('FR', '59510', 'Hem', '4 Av. Pinay', 'Erwan', 'Nader'),
-            recipient: new Address('FR', '75001', 'Paris', '1 Rue de la Paix', 'Jane', 'Doe'),
-            parcels:   [new Parcel(500)],
-        ));
+        $request = new ShipmentRequest(
+            sender: new Address(
+                countryCode: 'FR', postCode: '59510', city: 'Hem',
+                streetName: '4 Av. Antoine Pinay', firstName: 'Erwan', lastName: 'Nader',
+                mobileNo: '+33600000000',
+            ),
+            recipient: new Address(
+                countryCode: 'FR', postCode: '75001', city: 'Paris',
+                streetName: '1 Rue de la Paix', firstName: 'Jane', lastName: 'Doe',
+                mobileNo: '+33600000001',
+            ),
+            parcels: [new Parcel(weightGrams: 500, content: 'Clothes')],
+            deliveryMode: DeliveryMode::RELAY,
+            deliveryLocation: 'FR-066974', // relay point ID, e.g. from the picker below
+            // Empty deliveryLocation: Mondial Relay lets the recipient choose (notified by SMS/email)
+        );
 
-        return $this->redirect($response->labelOutput); // download PDF
+        try {
+            $response = $this->mondialRelay->createShipment($request);
+        } catch (ApiException $e) {
+            // Mondial Relay rejected the request: the message lists its error codes
+            throw $e;
+        } catch (MondialRelayException $e) {
+            // HTTP failure, malformed or incomplete response
+            throw $e;
+        }
+
+        // $response->trackingUrl is the public tracking link
+        return $response->labelOutput; // PDF label URL
     }
 }
 ```
+
+`ApiException` extends `MondialRelayException`: catch `MondialRelayException` alone to handle every failure.
+
+### Searching relay points
+
+```php
+use Ernadoo\MondialRelay\ParcelShop\ParcelShopSearchRequest;
+
+$shops = $this->mondialRelay->searchParcelShops(
+    new ParcelShopSearchRequest(countryCode: 'FR', postCode: '75001'),
+);
+
+foreach ($shops as $shop) {
+    // $shop->id, $shop->name, $shop->locationCode() …
+}
+```
+
+### Symfony Profiler
+
+Every call to `createShipment()` and `searchParcelShops()` appears in the Mondial Relay panel of the
+Symfony Profiler: method, parameters, result, duration and error, if any. HTTP calls also show up in
+the HTTP Client panel.
 
 ## Relay point picker
 
@@ -93,7 +156,7 @@ composer require symfony/stimulus-bundle
 ```
 
 With AssetMapper, the controller is registered automatically. With Webpack Encore, run
-`npm install --force` then rebuild your assets. See [the picker documentation](docs/03-twig.md).
+`npm install --force` then rebuild your assets.
 
 ```twig
 <form method="post">
@@ -103,11 +166,8 @@ With AssetMapper, the controller is registered automatically. With Webpack Encor
 </form>
 ```
 
-## Documentation
-
-- [Installation & configuration](docs/01-installation.md)
-- [Usage in controllers & services](docs/02-usage.md)
-- [Relay point picker](docs/03-twig.md)
+Options, highlighting a saved relay point, filling your own form fields and the `select` event are
+described in the [relay point picker documentation](docs/relay-point-picker.md).
 
 ## Tests
 
