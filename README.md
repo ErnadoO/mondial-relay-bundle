@@ -9,7 +9,7 @@ Symfony bundle for the [ernadoo/mondial-relay](https://github.com/ernadoo/mondia
 ## Requirements
 
 - PHP 8.2+
-- Symfony 6.4 or 7.x
+- Symfony 6.4, 7.x or 8.x (Symfony 8 requires PHP 8.4+)
 
 ## Installation
 
