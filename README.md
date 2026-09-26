@@ -4,7 +4,7 @@ Symfony bundle for the [ernadoo/mondial-relay](https://github.com/ernadoo/mondia
 
 - Autowiring of `MondialRelayClientInterface`
 - Symfony Profiler integration (call log, duration)
-- Relay point picker: a Stimulus controller (Symfony UX) and a Twig helper
+- Relay point picker: a Stimulus controller (Symfony UX) and a Twig helper (optional, requires `symfony/stimulus-bundle`)
 
 ## Requirements
 
@@ -80,7 +80,20 @@ class LabelController extends AbstractController
 
 ## Relay point picker
 
-Requires `symfony/stimulus-bundle` (AssetMapper or Webpack Encore).
+The picker is optional: label creation and relay point search work without it. To use it, your
+application needs:
+
+- **`symfony/stimulus-bundle`**: it loads the Stimulus controller shipped with this bundle.
+  Without it, `mondial_relay_widget()` renders an empty block.
+- **AssetMapper or Webpack Encore** to serve the JavaScript. Projects created with
+  `symfony new --webapp` already have AssetMapper and StimulusBundle.
+
+```bash
+composer require symfony/stimulus-bundle
+```
+
+With AssetMapper, the controller is registered automatically. With Webpack Encore, run
+`npm install --force` then rebuild your assets. See [the picker documentation](docs/03-twig.md).
 
 ```twig
 <form method="post">

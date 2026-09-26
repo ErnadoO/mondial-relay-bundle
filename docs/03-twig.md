@@ -7,7 +7,8 @@ the Mondial Relay plugin on demand, only on pages that display a picker.
 
 ## Installation
 
-The picker needs `symfony/stimulus-bundle`:
+The picker is optional and needs `symfony/stimulus-bundle` (the rest of the bundle does not).
+Without it, `mondial_relay_widget()` renders an empty block.
 
 ```bash
 composer require symfony/stimulus-bundle
