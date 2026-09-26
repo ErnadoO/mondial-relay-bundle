@@ -137,9 +137,14 @@ foreach ($shops as $shop) {
 
 ### Symfony Profiler
 
-Every call to `createShipment()` and `searchParcelShops()` appears in the Mondial Relay panel of the
-Symfony Profiler: method, parameters, result, duration and error, if any. HTTP calls also show up in
-the HTTP Client panel.
+In debug mode, every call to `createShipment()` and `searchParcelShops()` appears in the Mondial Relay
+panel of the Symfony Profiler: method, parameters, result, duration and error, if any. Label creation
+also shows up in the HTTP Client panel.
+
+With `symfony/stopwatch` installed, calls also appear in the Performance timeline (category
+`mondial_relay`), next to your controllers and database queries.
+
+Nothing is recorded outside debug mode.
 
 ## Relay point picker
 
