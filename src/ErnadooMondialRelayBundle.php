@@ -16,6 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpClient\Psr18Client;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use Twig\Extension\RuntimeExtensionInterface;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
@@ -144,39 +145,45 @@ class ErnadooMondialRelayBundle extends AbstractBundle
                 '$parcelShopClient' => service(SoapParcelShopClient::class),
             ]);
 
-        // ── Profiling decorator (wraps MondialRelayClient) ────────────────────
-
-        $services
-            ->set(ProfilingMondialRelayClient::class)
-            ->decorate(MondialRelayClient::class)
-            ->args([
-                '$inner' => service('.inner'),
-            ]);
-
         // ── Public interface alias (autowiring entry point) ────────────────────
 
         $services->alias(MondialRelayClientInterface::class, MondialRelayClient::class)->public();
 
-        // ── Symfony Profiler DataCollector ────────────────────────────────────
+        // ── Symfony Profiler (debug only) ─────────────────────────────────────
+        // The decorator keeps a log of the calls: never in production.
 
-        $services
-            ->set(MondialRelayDataCollector::class)
-            ->args(['$client' => service(ProfilingMondialRelayClient::class)])
-            ->tag('data_collector', [
-                'template' => '@ErnadooMondialRelay/Collector/mondialrelay.html.twig',
-                'id'       => 'ernadoo.mondialrelay',
-            ]);
+        if ($builder->getParameter('kernel.debug')) {
+            $services
+                ->set(ProfilingMondialRelayClient::class)
+                ->decorate(MondialRelayClient::class)
+                ->args([
+                    '$inner'     => service('.inner'),
+                    '$stopwatch' => service('debug.stopwatch')->nullOnInvalid(),
+                    '$sandbox'   => $config['sandbox'],
+                ])
+                ->tag('kernel.reset', ['method' => 'reset']);
 
-        // ── Twig (relay point widget helper) ─────────────────────────────────
+            $services
+                ->set(MondialRelayDataCollector::class)
+                ->args(['$client' => service(ProfilingMondialRelayClient::class)])
+                ->tag('data_collector', [
+                    'template' => '@ErnadooMondialRelay/Collector/mondialrelay.html.twig',
+                    'id'       => 'ernadoo.mondialrelay',
+                ]);
+        }
 
-        $services
-            ->set(Twig\MondialRelayRuntime::class)
-            ->args(['$customerId' => $config['credentials']['customer_id']])
-            ->tag('twig.runtime');
+        // ── Twig (relay point picker markup), when Twig is installed ──────────
 
-        $services
-            ->set(Twig\MondialRelayTwigExtension::class)
-            ->tag('twig.extension');
+        if (interface_exists(RuntimeExtensionInterface::class)) {
+            $services
+                ->set(Twig\MondialRelayRuntime::class)
+                ->args(['$customerId' => $config['credentials']['customer_id']])
+                ->tag('twig.runtime');
+
+            $services
+                ->set(Twig\MondialRelayTwigExtension::class)
+                ->tag('twig.extension');
+        }
 
         // ── Container parameters ──────────────────────────────────────────────
 

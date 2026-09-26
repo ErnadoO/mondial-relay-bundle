@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Leaflet and the Mondial Relay plugin on demand, fills optional `id`, `name`, `address` and
   `summary` targets, and dispatches a `select` event describing the relay point.
 - `selected` option to highlight and prefill a previously saved relay point.
+- Mondial Relay calls appear in the Profiler's Performance timeline (category `mondial_relay`)
+  when `symfony/stopwatch` is installed.
 
 ### Changed
 
@@ -23,10 +25,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `ShipmentRequest::$deliveryLocation` (e.g. `FR-066974`). The previous implementation never
   initialised the widget nor filled its input, so no working integration can break.
 
+### Fixed
+
+- Applications without Twig could not boot: the Twig helpers are now registered only when Twig
+  is installed, as `suggest` implies.
+- The profiling decorator was active in production and kept every call in memory, which grew
+  without bound in long-running processes (workers). It is now registered in debug mode only
+  and reset between requests.
+- The Profiler now records HTTP failures and incomplete responses as errors (not only
+  `ApiException`), and shows the actual `sandbox` setting.
+
 ### Documentation
 
 - Installation and usage docs are merged into the README; the picker has its own page,
   `docs/relay-point-picker.md`.
+
+### Internal
+
+- Requires `nyholm/psr7` ^1.8.2 (older versions trigger deprecations on PHP 8.4+).
+- CI: Symfony 8.0, PHP 8.5, a job with the lowest allowed dependencies and
+  `composer validate --strict`; `symfony/asset-mapper` and `symfony/stopwatch` follow the tested version.
 
 ## [3.1.0] - 2026-09-26
 
