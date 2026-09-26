@@ -10,6 +10,7 @@ use Ernadoo\MondialRelay\Contract\MondialRelayClientInterface;
 use Ernadoo\MondialRelay\MondialRelayClient;
 use Ernadoo\MondialRelayBundle\DataCollector\MondialRelayDataCollector;
 use Ernadoo\MondialRelayBundle\DataCollector\ProfilingMondialRelayClient;
+use Symfony\Component\AssetMapper\AssetMapperInterface;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -27,6 +28,38 @@ class ErnadooMondialRelayBundle extends AbstractBundle
     public function getPath(): string
     {
         return dirname(__DIR__);
+    }
+
+    /**
+     * Exposes assets/dist (the relay-point-picker Stimulus controller) to AssetMapper,
+     * under the "@ernadoo/mondial-relay-bundle" namespace used by controllers.json.
+     */
+    public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
+    {
+        if (!$this->isAssetMapperAvailable($builder)) {
+            return;
+        }
+
+        $builder->prependExtensionConfig('framework', [
+            'asset_mapper' => [
+                'paths' => [
+                    $this->getPath().'/assets/dist' => '@ernadoo/mondial-relay-bundle',
+                ],
+            ],
+        ]);
+    }
+
+    private function isAssetMapperAvailable(ContainerBuilder $builder): bool
+    {
+        if (!interface_exists(AssetMapperInterface::class)) {
+            return false;
+        }
+
+        /** @var array<string, array{path: string}> $bundlesMetadata */
+        $bundlesMetadata = $builder->getParameter('kernel.bundles_metadata');
+
+        return isset($bundlesMetadata['FrameworkBundle'])
+            && is_file($bundlesMetadata['FrameworkBundle']['path'].'/Resources/config/asset_mapper.php');
     }
 
     public function configure(DefinitionConfigurator $definition): void

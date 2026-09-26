@@ -4,7 +4,7 @@ Symfony bundle for the [ernadoo/mondial-relay](https://github.com/ernadoo/mondia
 
 - Autowiring of `MondialRelayClientInterface`
 - Symfony Profiler integration (call log, duration)
-- Twig helper for the relay point selection widget
+- Relay point picker: a Stimulus controller (Symfony UX) and a Twig helper
 
 ## Requirements
 
@@ -78,21 +78,23 @@ class LabelController extends AbstractController
 }
 ```
 
-## Twig widget
+## Relay point picker
+
+Requires `symfony/stimulus-bundle` (AssetMapper or Webpack Encore).
 
 ```twig
-{# Renders the Mondial Relay relay-point selection widget #}
-{{ mondial_relay_widget('FR', '75001') }}
-
-{# Just the customer ID, for your own JS integration #}
-{{ mondial_relay_customer_id() }}
+<form method="post">
+    {# Map + hidden input "relay_point_id" receiving e.g. "FR-066974" #}
+    {{ mondial_relay_widget(postCode: '75001') }}
+    <button>Ship here</button>
+</form>
 ```
 
 ## Documentation
 
 - [Installation & configuration](docs/01-installation.md)
 - [Usage in controllers & services](docs/02-usage.md)
-- [Twig widget](docs/03-twig.md)
+- [Relay point picker](docs/03-twig.md)
 
 ## Tests
 

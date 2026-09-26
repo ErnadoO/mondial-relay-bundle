@@ -1,8 +1,14 @@
 {
     "name": "ernadoo/mondial-relay-bundle",
     "type": "symfony-bundle",
-    "description": "Mondial Relay Bundle for Symfony 6.4 / 7.x / 8.x",
-    "keywords": ["mondial-relay", "shipping", "symfony", "bundle"],
+    "description": "Mondial Relay Bundle for Symfony 6.4 / 7.x / 8.x: label creation, relay point search and a Stimulus relay point picker",
+    "keywords": [
+        "mondial-relay",
+        "shipping",
+        "symfony",
+        "bundle",
+        "symfony-ux"
+    ],
     "license": "MIT",
     "authors": [
         {
@@ -20,6 +26,7 @@
     "require-dev": {
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^11.0",
+        "symfony/asset-mapper": "^6.4 || ^7.0 || ^8.0",
         "symfony/stopwatch": "^6.4 || ^7.0 || ^8.0",
         "twig/twig": "^3.0"
     },
@@ -28,8 +35,9 @@
         "phpstan": "phpstan analyse"
     },
     "suggest": {
+        "symfony/stimulus-bundle": "Required to use the relay point picker (Stimulus controller)",
         "symfony/stopwatch": "Required for the Symfony Profiler integration",
-        "twig/twig": "Required to use the Twig extension (relay point widget helper)"
+        "twig/twig": "Required to use the Twig helpers (relay point picker markup)"
     },
     "config": {
         "sort-packages": true
