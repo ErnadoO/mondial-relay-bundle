@@ -39,6 +39,7 @@ final class MondialRelayRuntime implements RuntimeExtensionInterface
      * @param string $country   two-letter ISO country code
      * @param string $city      city to center the search on
      * @param string $mode      delivery mode ("24R" relay point, "24L" locker…)
+     * @param string $selected  ID of a relay point to highlight, e.g. the saved one ("FR-066974")
      */
     public function widget(
         string $postCode = '',
@@ -46,6 +47,7 @@ final class MondialRelayRuntime implements RuntimeExtensionInterface
         string $country = 'FR',
         string $city = '',
         string $mode = '24R',
+        string $selected = '',
     ): string {
         $values = [
             'brand' => $this->customerId,
@@ -53,6 +55,7 @@ final class MondialRelayRuntime implements RuntimeExtensionInterface
             'post-code' => $postCode,
             'city' => $city,
             'mode' => $mode,
+            'selected' => $selected,
         ];
 
         $attributes = sprintf('data-controller="%s"', self::CONTROLLER);
@@ -61,10 +64,11 @@ final class MondialRelayRuntime implements RuntimeExtensionInterface
         }
 
         return sprintf(
-            '<div %1$s><div data-%2$s-target="map"></div><input type="hidden" name="%3$s" data-%2$s-target="id"></div>',
+            '<div %1$s><div data-%2$s-target="map"></div><input type="hidden" name="%3$s" value="%4$s" data-%2$s-target="id"></div>',
             $attributes,
             self::CONTROLLER,
             self::escape($inputName),
+            self::escape($selected),
         );
     }
 

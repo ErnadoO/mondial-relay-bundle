@@ -18,8 +18,16 @@ final class MondialRelayRuntimeTest extends TestCase
         self::assertStringContainsString('data-ernadoo--mondial-relay-bundle--relay-point-picker-post-code-value="29950"', $html);
         self::assertStringContainsString('data-ernadoo--mondial-relay-bundle--relay-point-picker-city-value="Bénodet"', $html);
         self::assertStringContainsString('data-ernadoo--mondial-relay-bundle--relay-point-picker-mode-value="24R"', $html);
-        self::assertStringContainsString('<input type="hidden" name="relay_point_id" data-ernadoo--mondial-relay-bundle--relay-point-picker-target="id">', $html);
+        self::assertStringContainsString('<input type="hidden" name="relay_point_id" value="" data-ernadoo--mondial-relay-bundle--relay-point-picker-target="id">', $html);
         self::assertStringNotContainsString('<script', $html);
+    }
+
+    public function testWidgetHighlightsAndPrefillsTheSavedRelayPoint(): void
+    {
+        $html = (new MondialRelayRuntime('BDTEST  '))->widget(postCode: '29170', selected: 'FR-018332');
+
+        self::assertStringContainsString('data-ernadoo--mondial-relay-bundle--relay-point-picker-selected-value="FR-018332"', $html);
+        self::assertStringContainsString('name="relay_point_id" value="FR-018332"', $html);
     }
 
     public function testWidgetEscapesAttributes(): void

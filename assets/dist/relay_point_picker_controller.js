@@ -37,6 +37,9 @@ const clean = (text) => (text || '').replaceAll("''", "'").trim();
 /**
  * Relay point picker.
  *
+ * `selected` highlights a relay point when it appears in the results: center the search on
+ * its postal code so that it does. Highlighting does not fill the targets.
+ *
  * Fills the optional `id`, `name`, `address` and `summary` targets when a relay point is selected,
  * and dispatches a `select` event whose detail describes the relay point
  * ({ id: "FR-066974", number, name, address, postCode, city, country }).
@@ -50,6 +53,8 @@ export default class extends Controller {
         city: String,
         mode: { type: String, default: '24R' },
         results: { type: Number, default: 7 },
+        // ID of a relay point to highlight (e.g. the one previously saved): "FR-066974"
+        selected: String,
     };
 
     async connect() {
@@ -70,6 +75,7 @@ export default class extends Controller {
             NbResults: String(this.resultsValue),
             Responsive: true,
             ShowResultsOnMap: true,
+            AutoSelect: this.selectedValue || null,
             OnParcelShopSelected: (point) => this.select(point),
         });
     }

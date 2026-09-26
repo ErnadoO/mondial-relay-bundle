@@ -49,6 +49,18 @@ the selected relay point ID, ready for `ShipmentRequest::$deliveryLocation` (e.g
 | `country` | `'FR'` | ISO 2-letter country code |
 | `city` | `''` | City to center the search on |
 | `mode` | `'24R'` | Delivery mode (`24R` relay point, `24L` locker…) |
+| `selected` | `''` | ID of a relay point to highlight and prefill, e.g. the saved one (`'FR-066974'`) |
+
+### Showing the saved relay point
+
+Pass the saved ID as `selected`: the widget highlights it in the list and on the map (Mondial Relay
+`AutoSelect` option), and the hidden input is prefilled so the form can be resubmitted unchanged.
+The relay point is only highlighted if it is part of the results, so center the search on its
+postal code:
+
+```twig
+{{ mondial_relay_widget(postCode: customer.relayPointPostCode, selected: customer.relayPointId) }}
+```
 
 ## Using the controller directly
 
@@ -63,6 +75,7 @@ to the controller element), `id`, `name`, `address` and `summary` (text content)
     brand: mondial_relay_customer_id(),
     postCode: app.user.postCode,
     city: app.user.city,
+    selected: app.user.relayPointId,
 }) }}>
     <div {{ stimulus_target(picker, 'map') }}></div>
     <p>Selected: <span {{ stimulus_target(picker, 'summary') }}>—</span></p>
