@@ -19,6 +19,8 @@ final class AssetMapperTest extends TestCase
         $builder->setParameter('kernel.build_dir', sys_get_temp_dir());
         $builder->setParameter('kernel.bundles_metadata', [
             'FrameworkBundle' => ['path' => \dirname((string) (new \ReflectionClass(FrameworkBundle::class))->getFileName())],
+            // Registered automatically by FrameworkBundle since Symfony 8.2
+            'AssetMapperBundle' => ['path' => ''],
         ]);
 
         $extension = (new ErnadooMondialRelayBundle())->getContainerExtension();

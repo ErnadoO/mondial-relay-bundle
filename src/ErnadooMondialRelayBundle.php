@@ -58,8 +58,13 @@ class ErnadooMondialRelayBundle extends AbstractBundle
         /** @var array<string, array{path: string}> $bundlesMetadata */
         $bundlesMetadata = $builder->getParameter('kernel.bundles_metadata');
 
-        return isset($bundlesMetadata['FrameworkBundle'])
-            && is_file($bundlesMetadata['FrameworkBundle']['path'].'/Resources/config/asset_mapper.php');
+        if (!isset($bundlesMetadata['FrameworkBundle'])) {
+            return false;
+        }
+
+        // Symfony 8.2 moved AssetMapper to its own bundle; before, FrameworkBundle provided its configuration.
+        return isset($bundlesMetadata['AssetMapperBundle'])
+            || is_file($bundlesMetadata['FrameworkBundle']['path'].'/Resources/config/asset_mapper.php');
     }
 
     public function configure(DefinitionConfigurator $definition): void
