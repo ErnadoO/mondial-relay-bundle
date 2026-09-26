@@ -4,6 +4,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Mondial Relay API errors, warnings and created shipments are logged in every environment, on the
+  `mondial_relay` channel (requires `ernadoo/mondial-relay` with PSR-3 logging, `4.x-dev`).
+
 ## [3.2.0] - 2026-09-26
 
 ### Added
@@ -74,6 +81,7 @@ Rewrite for Symfony 6.4 / 7.x, on top of `ernadoo/mondial-relay` ^3.0.
 
 Older versions: see the [tags](https://github.com/ErnadoO/mondial-relay-bundle/tags).
 
+[Unreleased]: https://github.com/ErnadoO/mondial-relay-bundle/compare/v3.2.0...master
 [3.2.0]: https://github.com/ErnadoO/mondial-relay-bundle/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/ErnadoO/mondial-relay-bundle/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/ErnadoO/mondial-relay-bundle/releases/tag/v3.0.0

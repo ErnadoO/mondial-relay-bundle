@@ -144,7 +144,32 @@ also shows up in the HTTP Client panel.
 With `symfony/stopwatch` installed, calls also appear in the Performance timeline (category
 `mondial_relay`), next to your controllers and database queries.
 
-Nothing is recorded outside debug mode.
+Nothing is recorded by the Profiler outside debug mode.
+
+### Logs
+
+In every environment, the client logs on the `mondial_relay` channel (Monolog, or any PSR-3 logger
+registered as `logger`):
+
+| Level | Logged |
+|---|---|
+| `info` | Shipment created (number, delivery mode, relay point), relay point search (result count) |
+| `warning` | Non-blocking warnings returned by Mondial Relay (code and message) |
+| `error` | Rejections with the Mondial Relay codes and messages, HTTP failures |
+
+Credentials, request and response bodies, and addresses are never logged. To send these logs to a
+dedicated file with Monolog:
+
+```yaml
+monolog:
+    handlers:
+        mondial_relay:
+            type: stream
+            path: '%kernel.logs_dir%/mondial_relay.log'
+            channels: ['mondial_relay']
+```
+
+Requires a version of `ernadoo/mondial-relay` with PSR-3 logging (master branch, `4.x-dev`).
 
 ## Relay point picker
 

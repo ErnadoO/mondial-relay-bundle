@@ -10,6 +10,7 @@ use Ernadoo\MondialRelay\Contract\MondialRelayClientInterface;
 use Ernadoo\MondialRelay\MondialRelayClient;
 use Ernadoo\MondialRelayBundle\DataCollector\MondialRelayDataCollector;
 use Ernadoo\MondialRelayBundle\DataCollector\ProfilingMondialRelayClient;
+use Psr\Log\LoggerAwareInterface;
 use Symfony\Component\AssetMapper\AssetMapperInterface;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -138,12 +139,20 @@ class ErnadooMondialRelayBundle extends AbstractBundle
                 '$secretKey'  => $config['credentials']['secret_key'],
             ]);
 
-        $services
+        $client = $services
             ->set(MondialRelayClient::class)
             ->args([
                 '$shipmentClient'   => service(RestShipmentClient::class),
                 '$parcelShopClient' => service(SoapParcelShopClient::class),
             ]);
+
+        // API errors, warnings and created shipments, in every environment, on the "mondial_relay"
+        // channel. ernadoo/mondial-relay supports PSR-3 logging on its master branch only (4.0.x does not).
+        if ((new \ReflectionClass(MondialRelayClient::class))->implementsInterface(LoggerAwareInterface::class)) {
+            $client
+                ->call('setLogger', [service('logger')->ignoreOnInvalid()])
+                ->tag('monolog.logger', ['channel' => 'mondial_relay']);
+        }
 
         // ── Public interface alias (autowiring entry point) ────────────────────
 

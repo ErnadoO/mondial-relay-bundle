@@ -9,6 +9,8 @@ use Ernadoo\MondialRelay\MondialRelayClient;
 use Ernadoo\MondialRelayBundle\DataCollector\ProfilingMondialRelayClient;
 use Ernadoo\MondialRelayBundle\ErnadooMondialRelayBundle;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -59,6 +61,22 @@ final class BundleBootTest extends TestCase
         $container = $this->kernel->getContainer()->get('test.service_container');
 
         self::assertInstanceOf(ProfilingMondialRelayClient::class, $container->get(MondialRelayClientInterface::class));
+    }
+
+    public function testApiErrorsAreLoggedInEveryEnvironment(): void
+    {
+        if (!(new \ReflectionClass(MondialRelayClient::class))->implementsInterface(LoggerAwareInterface::class)) {
+            self::markTestSkipped('ernadoo/mondial-relay without PSR-3 logging support');
+        }
+
+        $this->kernel = new BundleTestKernel('test', false);
+        $this->kernel->boot();
+        $client = $this->kernel->getContainer()->get('test.service_container')->get(MondialRelayClient::class);
+
+        foreach (['shipmentClient', 'parcelShopClient'] as $property) {
+            $inner = (new \ReflectionProperty($client, $property))->getValue($client);
+            self::assertInstanceOf(LoggerInterface::class, (new \ReflectionProperty($inner, 'logger'))->getValue($inner), $property);
+        }
     }
 }
 
