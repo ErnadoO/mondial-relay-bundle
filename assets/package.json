@@ -2,7 +2,7 @@
     "name": "@ernadoo/mondial-relay-bundle",
     "description": "Mondial Relay relay point picker (Stimulus controller)",
     "license": "MIT",
-    "version": "4.0.0",
+    "version": "3.2.0",
     "main": "dist/relay_point_picker_controller.js",
     "symfony": {
         "controllers": {
