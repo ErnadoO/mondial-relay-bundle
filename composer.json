@@ -19,7 +19,7 @@
     "require": {
         "php": "^8.2",
         "ernadoo/mondial-relay": "^4.0",
-        "nyholm/psr7": "^1.8",
+        "nyholm/psr7": "^1.8.2",
         "symfony/framework-bundle": "^6.4 || ^7.0 || ^8.0",
         "symfony/http-client": "^6.4 || ^7.0 || ^8.0"
     },
@@ -36,7 +36,7 @@
     },
     "suggest": {
         "symfony/stimulus-bundle": "Required to use the relay point picker (Stimulus controller)",
-        "symfony/stopwatch": "Required for the Symfony Profiler integration",
+        "symfony/stopwatch": "Shows Mondial Relay calls in the Profiler's Performance timeline",
         "twig/twig": "Required to use the Twig helpers (relay point picker markup)"
     },
     "config": {
@@ -50,6 +50,9 @@
     "extra": {
         "symfony": {
             "endpoint": "https://api.github.com/repos/ernadoo/recipes/contents/index.json?ref=flex/main"
+        },
+        "branch-alias": {
+            "dev-master": "3.x-dev"
         }
     }
 }
