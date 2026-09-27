@@ -8,8 +8,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `api` relay point picker: a list and a Leaflet map fed by the relay point search API, as an
+  alternative to the official Mondial Relay widget (no jQuery, no Mondial Relay script, your own
+  styles). Its search endpoint (`@ErnadooMondialRelayBundle/config/routes.php`) caches results and
+  rate-limits searches per IP address. Choose it with `relay_point_picker.mode: api` or
+  `mondial_relay_widget(picker: 'api')`. Labels translated in English and French.
+- `mondial_relay_brand_code()` Twig function.
 - Mondial Relay API errors, warnings and created shipments are logged in every environment, on the
   `mondial_relay` channel (requires `ernadoo/mondial-relay` with PSR-3 logging, `4.x-dev`).
+
+### Changed
+
+- Credentials are named after MR Connect: `brand_code` (formerly `customer_id`), `api_login`
+  (`login`), `api_password` (`password`), `private_key` (`secret_key`). The former options still
+  work but are deprecated, and so is `mondial_relay_customer_id()`. The recipe uses
+  `MONDIAL_RELAY_BRAND_CODE`, `MONDIAL_RELAY_API_LOGIN`, `MONDIAL_RELAY_API_PASSWORD` and
+  `MONDIAL_RELAY_PRIVATE_KEY`.
+- Only the brand code is required: the API user is needed to create labels, the private key to
+  search relay points through the API. With `ernadoo/mondial-relay` 4.x-dev, a missing credential
+  fails the feature that needs it with a clear message.
+- Credentials are passed to `ernadoo/mondial-relay` by position, so the bundle works with its 4.0.x
+  releases and with its master branch, where the arguments are renamed.
 
 ## [3.2.0] - 2026-09-26
 

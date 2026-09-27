@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+    <file source-language="en" target-language="fr" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="relay_point_picker.postCode"><source>relay_point_picker.postCode</source><target>Code postal</target></trans-unit>
+            <trans-unit id="relay_point_picker.search"><source>relay_point_picker.search</source><target>Rechercher</target></trans-unit>
+            <trans-unit id="relay_point_picker.searching"><source>relay_point_picker.searching</source><target>Recherche en cours…</target></trans-unit>
+            <trans-unit id="relay_point_picker.results"><source>relay_point_picker.results</source><target>%count% point(s) relais trouvé(s)</target></trans-unit>
+            <trans-unit id="relay_point_picker.noResult"><source>relay_point_picker.noResult</source><target>Aucun point relais trouvé autour de ce code postal.</target></trans-unit>
+            <trans-unit id="relay_point_picker.invalidPostCode"><source>relay_point_picker.invalidPostCode</source><target>Saisissez un code postal valide.</target></trans-unit>
+            <trans-unit id="relay_point_picker.unavailable"><source>relay_point_picker.unavailable</source><target>Les points relais sont momentanément indisponibles, réessayez plus tard.</target></trans-unit>
+            <trans-unit id="relay_point_picker.tooManyRequests"><source>relay_point_picker.tooManyRequests</source><target>Trop de recherches, réessayez dans une minute.</target></trans-unit>
+            <trans-unit id="relay_point_picker.choose"><source>relay_point_picker.choose</source><target>Choisir</target></trans-unit>
+            <trans-unit id="relay_point_picker.selected"><source>relay_point_picker.selected</source><target>Sélectionné : %name%</target></trans-unit>
+            <trans-unit id="relay_point_picker.openingHours"><source>relay_point_picker.openingHours</source><target>Horaires</target></trans-unit>
+            <trans-unit id="relay_point_picker.closed"><source>relay_point_picker.closed</source><target>Fermé</target></trans-unit>
+        </body>
+    </file>
+</xliff>

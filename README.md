@@ -4,7 +4,7 @@ Symfony bundle for the [ernadoo/mondial-relay](https://github.com/ernadoo/mondia
 
 - Autowiring of `MondialRelayClientInterface`: label creation and relay point search
 - Symfony Profiler integration (call log, duration, errors)
-- Relay point picker: a Stimulus controller (Symfony UX) and a Twig helper
+- Relay point picker (Symfony UX): the official Mondial Relay widget, or a list + Leaflet map fed by the API
   (optional, requires `symfony/stimulus-bundle`)
 
 ## Requirements
@@ -34,33 +34,51 @@ Create `config/packages/ernadoo_mondial_relay.yaml`:
 ```yaml
 ernadoo_mondial_relay:
     credentials:
-        login:       '%env(MR_LOGIN)%'        # V2 API login (label creation)
-        password:    '%env(MR_PASSWORD)%'     # V2 API password
-        customer_id: '%env(MR_CUSTOMER_ID)%'  # 8-character brand code
-        secret_key:  '%env(MR_SECRET_KEY)%'   # SOAP secret key (relay point search)
+        brand_code:   '%env(MONDIAL_RELAY_BRAND_CODE)%'
+        api_login:    '%env(MONDIAL_RELAY_API_LOGIN)%'
+        api_password: '%env(MONDIAL_RELAY_API_PASSWORD)%'
+        private_key:  '%env(MONDIAL_RELAY_PRIVATE_KEY)%'
     sandbox: false
 ```
 
-Add the environment variables to your `.env.local`:
+The credentials are named after MR Connect, Mondial Relay's customer area. Each one is only needed
+by the features that use it:
+
+| Environment variable | In MR Connect | Needed for |
+|---|---|---|
+| `MONDIAL_RELAY_BRAND_CODE` | Code enseigne (brand code, 8 characters) | Everything (always required) |
+| `MONDIAL_RELAY_API_LOGIN` | Login of an API user: Administration → User management → API configuration | Creating labels |
+| `MONDIAL_RELAY_API_PASSWORD` | Password of that API user | Creating labels |
+| `MONDIAL_RELAY_PRIVATE_KEY` | Clé privée (private key) of the brand | Searching relay points through the API, and the `api` picker |
+
+A missing credential only fails the feature that needs it, with a clear message and a log entry
+(with `ernadoo/mondial-relay` 4.x-dev).
+Add them to your `.env.local` (never commit them):
 
 ```dotenv
-MR_LOGIN=your-v2-login
-MR_PASSWORD=your-v2-password
-MR_CUSTOMER_ID=BDTEST
-MR_SECRET_KEY=your-soap-key
+MONDIAL_RELAY_BRAND_CODE=CC12345
+MONDIAL_RELAY_API_LOGIN=CC12345@business-api.mondialrelay.com
+MONDIAL_RELAY_API_PASSWORD=your-api-password
+MONDIAL_RELAY_PRIVATE_KEY=your-private-key
 ```
+
+> **Upgrading from 3.2 or older:** the former options `customer_id`, `login`, `password` and
+> `secret_key` still work but are deprecated: rename them `brand_code`, `api_login`, `api_password`
+> and `private_key`. The Twig function `mondial_relay_customer_id()` becomes
+> `mondial_relay_brand_code()`.
 
 ### Sandbox
 
-`sandbox: true` sends label creation to `https://connect-api-sandbox.mondialrelay.com/api/shipment`,
-so no real label is created. Relay point search always uses the production SOAP endpoint.
-Enable it outside production, for example:
+`sandbox: true` sends label creation to `https://connect-api-sandbox.mondialrelay.com/api/shipment`:
+labels are generated ("SANDBOX MODE") but nothing is recorded. It needs a valid API user. Relay point
+search always uses the production endpoint. Enable it outside production, for example:
 
 ```yaml
 when@dev:
     ernadoo_mondial_relay:
         sandbox: true
 ```
+
 
 ## Usage
 
@@ -173,10 +191,19 @@ Requires a version of `ernadoo/mondial-relay` with PSR-3 logging (master branch,
 
 ## Relay point picker
 
-The picker is optional: label creation and relay point search work without it. To use it, your
-application needs:
+The picker is optional: label creation and relay point search work without it. Two modes:
 
-- **`symfony/stimulus-bundle`**: it loads the Stimulus controller shipped with this bundle.
+| | `widget` (default) | `api` |
+|---|---|---|
+| What it is | The official Mondial Relay widget | A list and a Leaflet map, rendered by the bundle |
+| Credentials | Brand code only | Brand code and private key (the key stays on the server) |
+| Loaded from Mondial Relay | jQuery (if missing), Leaflet and their widget script | Nothing: Leaflet and OpenStreetMap tiles only |
+| Look and feel | Mondial Relay's | Yours (CSS custom properties) |
+| Needs | — | The bundle routes; optionally `symfony/rate-limiter` and `symfony/translation` |
+
+Both modes need:
+
+- **`symfony/stimulus-bundle`**: it loads the Stimulus controllers shipped with this bundle.
   Without it, `mondial_relay_widget()` renders an empty block.
 - **AssetMapper or Webpack Encore** to serve the JavaScript. Projects created with
   `symfony new --webapp` already have AssetMapper and StimulusBundle.
@@ -185,19 +212,37 @@ application needs:
 composer require symfony/stimulus-bundle
 ```
 
-With AssetMapper, the controller is registered automatically. With Webpack Encore, run
+With AssetMapper, the controllers are registered automatically. With Webpack Encore, run
 `npm install --force` then rebuild your assets.
 
 ```twig
 <form method="post">
-    {# Map + hidden input "relay_point_id" receiving e.g. "FR-066974" #}
+    {# Picker + hidden input "relay_point_id" receiving e.g. "FR-066974" #}
     {{ mondial_relay_widget(postCode: '75001') }}
     <button>Ship here</button>
 </form>
 ```
 
-Options, highlighting a saved relay point, filling your own form fields and the `select` event are
-described in the [relay point picker documentation](docs/relay-point-picker.md).
+To use the `api` mode, import the routes of its search endpoint and choose it:
+
+```yaml
+# config/routes/ernadoo_mondial_relay.yaml
+ernadoo_mondial_relay:
+    resource: '@ErnadooMondialRelayBundle/config/routes.php'
+    prefix: /mondial-relay
+
+# config/packages/ernadoo_mondial_relay.yaml
+ernadoo_mondial_relay:
+    # ...
+    relay_point_picker:
+        mode: api          # or pass picker: 'api' to mondial_relay_widget()
+        cache_ttl: 3600    # seconds a search result is cached
+        rate_limit: 30     # searches per minute and per IP (with symfony/rate-limiter)
+```
+
+Options, highlighting a saved relay point, filling your own form fields, theming and the `select`
+event are described in the [relay point picker documentation](docs/relay-point-picker.md).
+
 
 ## Tests
 

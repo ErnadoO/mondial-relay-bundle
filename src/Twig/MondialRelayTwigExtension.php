@@ -13,8 +13,17 @@ final class MondialRelayTwigExtension extends AbstractExtension
     {
         return [
             new TwigFunction(
+                'mondial_relay_brand_code',
+                [MondialRelayRuntime::class, 'brandCode'],
+            ),
+            // Deprecated since 3.3 (the runtime triggers the deprecation): use mondial_relay_brand_code()
+            new TwigFunction(
                 'mondial_relay_customer_id',
                 [MondialRelayRuntime::class, 'customerId'],
+            ),
+            new TwigFunction(
+                'mondial_relay_picker_labels',
+                [MondialRelayRuntime::class, 'labels'],
             ),
             new TwigFunction(
                 'mondial_relay_widget',

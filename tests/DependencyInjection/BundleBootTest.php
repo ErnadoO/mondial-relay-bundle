@@ -6,6 +6,10 @@ namespace Ernadoo\MondialRelayBundle\Tests\DependencyInjection;
 
 use Ernadoo\MondialRelay\Contract\MondialRelayClientInterface;
 use Ernadoo\MondialRelay\MondialRelayClient;
+use Ernadoo\MondialRelay\ParcelShop\ParcelShop;
+use Ernadoo\MondialRelay\ParcelShop\ParcelShopSearchRequest;
+use Ernadoo\MondialRelay\Shipment\ShipmentRequest;
+use Ernadoo\MondialRelay\Shipment\ShipmentResponse;
 use Ernadoo\MondialRelayBundle\DataCollector\ProfilingMondialRelayClient;
 use Ernadoo\MondialRelayBundle\ErnadooMondialRelayBundle;
 use PHPUnit\Framework\TestCase;
@@ -15,7 +19,9 @@ use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 /**
  * Boots a real kernel with the bundle: catches service definitions that no longer
@@ -61,6 +67,21 @@ final class BundleBootTest extends TestCase
         $container = $this->kernel->getContainer()->get('test.service_container');
 
         self::assertInstanceOf(ProfilingMondialRelayClient::class, $container->get(MondialRelayClientInterface::class));
+    }
+
+    public function testRelayPointSearchEndpointIsRoutedCachedAndRateLimited(): void
+    {
+        $this->kernel = new BundleTestKernel('stub', false);
+        $this->kernel->boot();
+
+        $search = fn (string $postCode) => $this->kernel->handle(Request::create('/mondial-relay/relay-points', 'GET', ['postCode' => $postCode], server: ['REMOTE_ADDR' => '192.0.2.10']));
+
+        $response = $search('29950');
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('FR-018332', json_decode((string) $response->getContent(), true)['relayPoints'][0]['id']);
+
+        self::assertSame(200, $search('29000')->getStatusCode());
+        self::assertSame(429, $search('29100')->getStatusCode(), 'rate_limit: 2 searches per minute');
     }
 
     public function testApiErrorsAreLoggedInEveryEnvironment(): void
@@ -115,12 +136,38 @@ final class BundleTestKernel extends Kernel
 
         $container->extension('ernadoo_mondial_relay', [
             'credentials' => [
-                'login' => 'login',
-                'password' => 'password',
-                'customer_id' => 'BDTEST  ',
-                'secret_key' => 'secret',
+                'brand_code' => 'BDTEST  ',
+                'api_login' => 'login',
+                'api_password' => 'password',
+                'private_key' => 'secret',
             ],
             'sandbox' => true,
+            'relay_point_picker' => ['mode' => 'api', 'rate_limit' => 2],
         ]);
+
+        // "stub" environment: the relay point search answers without calling Mondial Relay
+        if ('stub' === $this->environment) {
+            $container->services()
+                ->set(MondialRelayClientInterface::class, StubRelayPointClient::class)
+                ->public();
+        }
+    }
+
+    protected function configureRoutes(RoutingConfigurator $routes): void
+    {
+        $routes->import('@ErnadooMondialRelayBundle/config/routes.php')->prefix('/mondial-relay');
+    }
+}
+
+final class StubRelayPointClient implements MondialRelayClientInterface
+{
+    public function createShipment(ShipmentRequest $request): ShipmentResponse
+    {
+        throw new \LogicException('Not used');
+    }
+
+    public function searchParcelShops(ParcelShopSearchRequest $request): array
+    {
+        return [new ParcelShop('018332', 'LOCKER', '95 ZONE', '', '29170', 'FOUESNANT', 'FR', 47.88, -4.02, 5.1)];
     }
 }

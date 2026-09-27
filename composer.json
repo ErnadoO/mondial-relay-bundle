@@ -27,7 +27,9 @@
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^11.0",
         "symfony/asset-mapper": "^6.4 || ^7.0 || ^8.0",
+        "symfony/rate-limiter": "^6.4 || ^7.0 || ^8.0",
         "symfony/stopwatch": "^6.4 || ^7.0 || ^8.0",
+        "symfony/translation": "^6.4 || ^7.0 || ^8.0",
         "twig/twig": "^3.0"
     },
     "scripts": {
@@ -35,8 +37,10 @@
         "phpstan": "phpstan analyse"
     },
     "suggest": {
+        "symfony/rate-limiter": "Rate-limits the relay point search endpoint of the \"api\" picker",
         "symfony/stimulus-bundle": "Required to use the relay point picker (Stimulus controller)",
         "symfony/stopwatch": "Shows Mondial Relay calls in the Profiler's Performance timeline",
+        "symfony/translation": "Translates the labels of the \"api\" picker (English and French provided)",
         "twig/twig": "Required to use the Twig helpers (relay point picker markup)"
     },
     "config": {

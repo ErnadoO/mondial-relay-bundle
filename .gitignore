@@ -9,3 +9,4 @@ Tests/App/logs
 .idea
 .phpunit.result.cache
 .phpunit.cache/
+config/reference.php

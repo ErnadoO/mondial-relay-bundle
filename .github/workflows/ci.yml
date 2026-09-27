@@ -51,7 +51,9 @@ jobs:
             symfony/http-client:${{ matrix.symfony }}.*
           composer require --dev --no-update \
             symfony/asset-mapper:${{ matrix.symfony }}.* \
-            symfony/stopwatch:${{ matrix.symfony }}.*
+            symfony/rate-limiter:${{ matrix.symfony }}.* \
+            symfony/stopwatch:${{ matrix.symfony }}.* \
+            symfony/translation:${{ matrix.symfony }}.*
 
       - name: Install dependencies
         run: composer update --prefer-dist --no-progress ${{ matrix.dependencies == 'lowest' && '--prefer-lowest --prefer-stable' || '' }}

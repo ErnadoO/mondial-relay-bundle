@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Ernadoo\MondialRelayBundle\Tests\Twig;
 
 use Ernadoo\MondialRelayBundle\Twig\MondialRelayRuntime;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class MondialRelayRuntimeTest extends TestCase
 {
@@ -38,8 +41,53 @@ final class MondialRelayRuntimeTest extends TestCase
         self::assertStringContainsString('name="order[relay]"', $html);
     }
 
-    public function testCustomerIdIsExposedForCustomSetups(): void
+    public function testBrandCodeIsExposedForCustomSetups(): void
     {
+        self::assertSame('BDTEST  ', (new MondialRelayRuntime('BDTEST  '))->brandCode());
+    }
+
+    #[IgnoreDeprecations]
+    public function testCustomerIdIsDeprecated(): void
+    {
+        $this->expectUserDeprecationMessageMatches('/"mondial_relay_customer_id\(\)" Twig function is deprecated/');
+
         self::assertSame('BDTEST  ', (new MondialRelayRuntime('BDTEST  '))->customerId());
+    }
+
+    public function testApiPickerRendersTheListAndMapControllerWithTheSearchUrl(): void
+    {
+        $urls = $this->createStub(UrlGeneratorInterface::class);
+        $urls->method('generate')->willReturn('/mondial-relay/relay-points');
+
+        $html = (new MondialRelayRuntime('CC12345', 'widget', $urls))->widget(postCode: '29950', selected: 'FR-018332', picker: 'api');
+
+        $controller = 'ernadoo--mondial-relay-bundle--relay-point-api-picker';
+        self::assertStringContainsString(sprintf('data-controller="%s"', $controller), $html);
+        self::assertStringContainsString(sprintf('data-%s-url-value="/mondial-relay/relay-points"', $controller), $html);
+        self::assertStringContainsString(sprintf('data-%s-post-code-value="29950"', $controller), $html);
+        self::assertStringContainsString(sprintf('<div data-%s-target="panel"></div>', $controller), $html);
+        self::assertStringContainsString(sprintf('name="relay_point_id" value="FR-018332" data-%s-target="id"', $controller), $html);
+        self::assertStringContainsString('&quot;search&quot;:&quot;Search&quot;', $html, 'Labels are passed to the controller');
+        self::assertStringNotContainsString('CC12345', $html, 'The API picker does not need the brand code in the page');
+    }
+
+    public function testConfiguredPickerModeIsTheDefault(): void
+    {
+        $urls = $this->createStub(UrlGeneratorInterface::class);
+        $urls->method('generate')->willReturn('/relay-points');
+
+        self::assertStringContainsString('relay-point-api-picker', (new MondialRelayRuntime('CC12345', 'api', $urls))->widget());
+        self::assertStringContainsString('"ernadoo--mondial-relay-bundle--relay-point-picker"', (new MondialRelayRuntime('CC12345', 'api', $urls))->widget(picker: 'widget'));
+    }
+
+    public function testApiPickerWithoutTheRoutesFailsWithAClearMessage(): void
+    {
+        $urls = $this->createStub(UrlGeneratorInterface::class);
+        $urls->method('generate')->willThrowException(new RouteNotFoundException());
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('@ErnadooMondialRelayBundle/config/routes.php');
+
+        (new MondialRelayRuntime('CC12345', 'api', $urls))->widget();
     }
 }

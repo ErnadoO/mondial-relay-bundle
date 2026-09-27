@@ -1,0 +1,121 @@
+/* Relay point picker fed by the Mondial Relay API ("api" mode). Override the custom properties to theme it. */
+.mr-picker {
+    --mr-picker-accent: #96154a;
+    --mr-picker-border: #d0d0d0;
+    --mr-picker-selected-bg: #fbeef3;
+    --mr-picker-map-height: 360px;
+}
+
+.mr-picker__search {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: center;
+    margin-bottom: .5rem;
+}
+
+.mr-picker__input {
+    width: 8rem;
+    padding: .375rem .5rem;
+    border: 1px solid var(--mr-picker-border);
+    border-radius: 4px;
+}
+
+.mr-picker__button {
+    padding: .375rem .75rem;
+    border: 0;
+    border-radius: 4px;
+    background: var(--mr-picker-accent);
+    color: #fff;
+    cursor: pointer;
+}
+
+.mr-picker__status {
+    margin: 0 0 .5rem;
+    min-height: 1.5em;
+}
+
+.mr-picker__results {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: .75rem;
+}
+
+@media (min-width: 768px) {
+    .mr-picker__results {
+        grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    }
+}
+
+.mr-picker__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: var(--mr-picker-map-height);
+    overflow-y: auto;
+    border: 1px solid var(--mr-picker-border);
+    border-radius: 4px;
+}
+
+.mr-picker__item + .mr-picker__item {
+    border-top: 1px solid var(--mr-picker-border);
+}
+
+.mr-picker__item--selected {
+    background: var(--mr-picker-selected-bg);
+}
+
+.mr-picker__choose {
+    display: grid;
+    width: 100%;
+    padding: .5rem .75rem;
+    border: 0;
+    background: none;
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+}
+
+.mr-picker__choose:focus-visible {
+    outline: 2px solid var(--mr-picker-accent);
+    outline-offset: -2px;
+}
+
+.mr-picker__name {
+    font-weight: bold;
+}
+
+.mr-picker__item--selected .mr-picker__name {
+    color: var(--mr-picker-accent);
+}
+
+.mr-picker__distance {
+    font-size: .875em;
+    opacity: .8;
+}
+
+.mr-picker__hours {
+    padding: 0 .75rem .5rem;
+    font-size: .875em;
+}
+
+.mr-picker__hours dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0 .75rem;
+    margin: .25rem 0 0;
+}
+
+.mr-picker__hours dt::first-letter {
+    text-transform: uppercase;
+}
+
+.mr-picker__hours dd {
+    margin: 0;
+}
+
+.mr-picker__map {
+    min-height: var(--mr-picker-map-height);
+    border-radius: 4px;
+    z-index: 0;
+}

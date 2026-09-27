@@ -1,8 +1,8 @@
 {
     "name": "@ernadoo/mondial-relay-bundle",
-    "description": "Mondial Relay relay point picker (Stimulus controller)",
+    "description": "Mondial Relay relay point pickers (Stimulus controllers): official widget, or list + Leaflet map fed by the API",
     "license": "MIT",
-    "version": "3.2.0",
+    "version": "3.3.0",
     "main": "dist/relay_point_picker_controller.js",
     "symfony": {
         "controllers": {
@@ -11,6 +11,15 @@
                 "webpackMode": "lazy",
                 "fetch": "lazy",
                 "enabled": true
+            },
+            "relay-point-api-picker": {
+                "main": "dist/relay_point_api_picker_controller.js",
+                "webpackMode": "lazy",
+                "fetch": "lazy",
+                "enabled": true,
+                "autoimport": {
+                    "@ernadoo/mondial-relay-bundle/dist/relay_point_api_picker.css": true
+                }
             }
         },
         "importmap": {
