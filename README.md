@@ -87,8 +87,6 @@ Inject `MondialRelayClientInterface` anywhere in your application.
 
 ```php
 use Ernadoo\MondialRelay\Contract\MondialRelayClientInterface;
-use Ernadoo\MondialRelay\Exception\ApiException;
-use Ernadoo\MondialRelay\Exception\MondialRelayException;
 use Ernadoo\MondialRelay\Shipment\Address;
 use Ernadoo\MondialRelay\Shipment\DeliveryMode;
 use Ernadoo\MondialRelay\Shipment\Parcel;
@@ -120,15 +118,7 @@ final class ShippingService
             // Empty deliveryLocation: Mondial Relay lets the recipient choose (notified by SMS/email)
         );
 
-        try {
-            $response = $this->mondialRelay->createShipment($request);
-        } catch (ApiException $e) {
-            // Mondial Relay rejected the request: the message lists its error codes
-            throw $e;
-        } catch (MondialRelayException $e) {
-            // HTTP failure, malformed or incomplete response
-            throw $e;
-        }
+        $response = $this->mondialRelay->createShipment($request);
 
         // $response->trackingUrl is the public tracking link
         return $response->labelOutput; // PDF label URL
@@ -136,7 +126,42 @@ final class ShippingService
 }
 ```
 
-`ApiException` extends `MondialRelayException`: catch `MondialRelayException` alone to handle every failure.
+### Handling errors
+
+Every failure throws a `MondialRelayException`: `ApiException` when Mondial Relay rejects the
+request (with its codes, `getErrors()`), `TransportException` when it cannot be reached or answers
+with an unusable response, `ConfigurationException` when a credential is missing. Their messages
+are in English, for developers and logs.
+
+To tell your users what went wrong, `MondialRelayErrorMessage` turns the exception into a
+translatable message (`TranslatableInterface`), in the `ErnadooMondialRelayBundle` domain:
+
+```php
+use Ernadoo\MondialRelay\Exception\MondialRelayException;
+use Ernadoo\MondialRelayBundle\Translation\MondialRelayErrorMessage;
+
+try {
+    $label = $shipping->createLabel();
+} catch (MondialRelayException $e) {
+    $this->logger->error('Label not created: {message}', ['message' => $e->getMessage(), 'exception' => $e]);
+    $this->addFlash('danger', MondialRelayErrorMessage::fromException($e)); // {{ message|trans }} in Twig
+    // or, as a string: MondialRelayErrorMessage::fromException($e)->trans($translator)
+}
+```
+
+| Message key | When |
+|---|---|
+| `error.phone_number` | Invalid phone number (international format expected) |
+| `error.relay_point` | The relay point cannot receive the parcel (unknown, or unavailable for the delivery mode) |
+| `error.parcel_weight` | Parcel weight out of range for the delivery mode |
+| `error.post_code`, `error.country` | Postal code, city or country not recognised (relay point search) |
+| `error.configuration` | Missing or invalid credentials |
+| `error.unavailable` | Mondial Relay unreachable or unusable response: try again later |
+| `error.rejected` | Any other rejection |
+
+English and French are provided. The list of Mondial Relay codes is partial (Mondial Relay does not
+publish it): unknown codes fall back to `error.rejected`. Override or add languages as usual, with a
+`translations/ErnadooMondialRelayBundle.<locale>.xlf` file in your application.
 
 ### Searching relay points
 

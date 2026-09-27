@@ -21,7 +21,8 @@
         "ernadoo/mondial-relay": "^4.1",
         "nyholm/psr7": "^1.8.2",
         "symfony/framework-bundle": "^6.4 || ^7.0 || ^8.0",
-        "symfony/http-client": "^6.4 || ^7.0 || ^8.0"
+        "symfony/http-client": "^6.4 || ^7.0 || ^8.0",
+        "symfony/translation-contracts": "^2.5 || ^3.0"
     },
     "require-dev": {
         "phpstan/phpstan": "^2.1",
@@ -40,7 +41,7 @@
         "symfony/rate-limiter": "Rate-limits the relay point search endpoint of the \"api\" picker",
         "symfony/stimulus-bundle": "Required to use the relay point picker (Stimulus controller)",
         "symfony/stopwatch": "Shows Mondial Relay calls in the Profiler's Performance timeline",
-        "symfony/translation": "Translates the labels of the \"api\" picker (English and French provided)",
+        "symfony/translation": "Translates the labels of the \"api\" picker and the error messages (English and French provided)",
         "twig/twig": "Required to use the Twig helpers (relay point picker markup)"
     },
     "config": {

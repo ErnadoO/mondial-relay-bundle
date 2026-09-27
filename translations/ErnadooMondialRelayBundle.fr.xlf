@@ -14,6 +14,14 @@
             <trans-unit id="relay_point_picker.selected"><source>relay_point_picker.selected</source><target>Sélectionné : %name%</target></trans-unit>
             <trans-unit id="relay_point_picker.openingHours"><source>relay_point_picker.openingHours</source><target>Horaires</target></trans-unit>
             <trans-unit id="relay_point_picker.closed"><source>relay_point_picker.closed</source><target>Fermé</target></trans-unit>
+            <trans-unit id="error.unavailable"><source>error.unavailable</source><target>Mondial Relay est momentanément indisponible, réessayez plus tard.</target></trans-unit>
+            <trans-unit id="error.configuration"><source>error.configuration</source><target>Mondial Relay n’est pas correctement configuré sur ce site.</target></trans-unit>
+            <trans-unit id="error.rejected"><source>error.rejected</source><target>Mondial Relay a refusé la demande.</target></trans-unit>
+            <trans-unit id="error.phone_number"><source>error.phone_number</source><target>Le numéro de téléphone est invalide : saisissez-le au format international, par exemple +33612345678.</target></trans-unit>
+            <trans-unit id="error.parcel_weight"><source>error.parcel_weight</source><target>Le poids du colis n’est pas accepté pour ce mode de livraison.</target></trans-unit>
+            <trans-unit id="error.relay_point"><source>error.relay_point</source><target>Ce point relais ne peut pas recevoir le colis : choisissez-en un autre.</target></trans-unit>
+            <trans-unit id="error.post_code"><source>error.post_code</source><target>Le code postal ou la ville n’est pas reconnu.</target></trans-unit>
+            <trans-unit id="error.country"><source>error.country</source><target>Le pays est invalide ou n’est pas desservi.</target></trans-unit>
         </body>
     </file>
 </xliff>

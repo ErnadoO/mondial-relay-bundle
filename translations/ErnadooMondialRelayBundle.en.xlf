@@ -14,6 +14,14 @@
             <trans-unit id="relay_point_picker.selected"><source>relay_point_picker.selected</source><target>Selected: %name%</target></trans-unit>
             <trans-unit id="relay_point_picker.openingHours"><source>relay_point_picker.openingHours</source><target>Opening hours</target></trans-unit>
             <trans-unit id="relay_point_picker.closed"><source>relay_point_picker.closed</source><target>Closed</target></trans-unit>
+            <trans-unit id="error.unavailable"><source>error.unavailable</source><target>Mondial Relay is unavailable at the moment, please try again later.</target></trans-unit>
+            <trans-unit id="error.configuration"><source>error.configuration</source><target>Mondial Relay is not configured correctly on this site.</target></trans-unit>
+            <trans-unit id="error.rejected"><source>error.rejected</source><target>Mondial Relay rejected the request.</target></trans-unit>
+            <trans-unit id="error.phone_number"><source>error.phone_number</source><target>The phone number is invalid: enter it in international format, e.g. +33612345678.</target></trans-unit>
+            <trans-unit id="error.parcel_weight"><source>error.parcel_weight</source><target>The parcel weight is not accepted for this delivery mode.</target></trans-unit>
+            <trans-unit id="error.relay_point"><source>error.relay_point</source><target>This relay point cannot receive the parcel: choose another one.</target></trans-unit>
+            <trans-unit id="error.post_code"><source>error.post_code</source><target>The postal code or the city is not recognised.</target></trans-unit>
+            <trans-unit id="error.country"><source>error.country</source><target>The country is invalid or not served.</target></trans-unit>
         </body>
     </file>
 </xliff>
