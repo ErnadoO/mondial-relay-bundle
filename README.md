@@ -51,8 +51,7 @@ by the features that use it:
 | `MONDIAL_RELAY_API_PASSWORD` | Password of that API user | Creating labels |
 | `MONDIAL_RELAY_PRIVATE_KEY` | Clé privée (private key) of the brand | Searching relay points through the API, and the `api` picker |
 
-A missing credential only fails the feature that needs it, with a clear message and a log entry
-(with `ernadoo/mondial-relay` 4.x-dev).
+A missing credential only fails the feature that needs it, with a clear message and a log entry.
 Add them to your `.env.local` (never commit them):
 
 ```dotenv
@@ -186,8 +185,6 @@ monolog:
             path: '%kernel.logs_dir%/mondial_relay.log'
             channels: ['mondial_relay']
 ```
-
-Requires a version of `ernadoo/mondial-relay` with PSR-3 logging (master branch, `4.x-dev`).
 
 ## Relay point picker
 

@@ -13,7 +13,6 @@ use Ernadoo\MondialRelay\Shipment\ShipmentResponse;
 use Ernadoo\MondialRelayBundle\DataCollector\ProfilingMondialRelayClient;
 use Ernadoo\MondialRelayBundle\ErnadooMondialRelayBundle;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -101,10 +100,6 @@ final class BundleBootTest extends TestCase
 
     public function testApiErrorsAreLoggedInEveryEnvironment(): void
     {
-        if (!(new \ReflectionClass(MondialRelayClient::class))->implementsInterface(LoggerAwareInterface::class)) {
-            self::markTestSkipped('ernadoo/mondial-relay without PSR-3 logging support');
-        }
-
         $this->kernel = new BundleTestKernel('test', false);
         $this->kernel->boot();
         $client = $this->kernel->getContainer()->get('test.service_container')->get('ernadoo_mondial_relay.client');

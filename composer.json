@@ -18,7 +18,7 @@
     ],
     "require": {
         "php": "^8.2",
-        "ernadoo/mondial-relay": "^4.0",
+        "ernadoo/mondial-relay": "^4.1",
         "nyholm/psr7": "^1.8.2",
         "symfony/framework-bundle": "^6.4 || ^7.0 || ^8.0",
         "symfony/http-client": "^6.4 || ^7.0 || ^8.0"

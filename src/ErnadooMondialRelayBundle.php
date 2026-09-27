@@ -11,7 +11,6 @@ use Ernadoo\MondialRelay\MondialRelayClient;
 use Ernadoo\MondialRelayBundle\Controller\RelayPointSearchController;
 use Ernadoo\MondialRelayBundle\DataCollector\MondialRelayDataCollector;
 use Ernadoo\MondialRelayBundle\DataCollector\ProfilingMondialRelayClient;
-use Psr\Log\LoggerAwareInterface;
 use Symfony\Component\AssetMapper\AssetMapperInterface;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -156,43 +155,36 @@ class ErnadooMondialRelayBundle extends AbstractBundle
 
         // ── Core library clients ──────────────────────────────────────────────
 
-        // Positional arguments: the credential arguments were renamed in ernadoo/mondial-relay
-        // (apiLogin, apiPassword, brandCode, privateKey), their order was not.
         $credentials = $config['credentials'];
 
         $services
             ->set('ernadoo_mondial_relay.shipment_client', RestShipmentClient::class)
             ->args([
-                service('ernadoo_mondial_relay.http_client'),
-                service('ernadoo_mondial_relay.http_client'),
-                service('ernadoo_mondial_relay.http_client'),
-                $credentials['api_login'],
-                $credentials['api_password'],
-                $credentials['brand_code'],
-                $config['sandbox'],
+                '$client'         => service('ernadoo_mondial_relay.http_client'),
+                '$requestFactory' => service('ernadoo_mondial_relay.http_client'),
+                '$streamFactory'  => service('ernadoo_mondial_relay.http_client'),
+                '$apiLogin'       => $credentials['api_login'],
+                '$apiPassword'    => $credentials['api_password'],
+                '$brandCode'      => $credentials['brand_code'],
+                '$sandbox'        => $config['sandbox'],
             ]);
 
         $services
             ->set('ernadoo_mondial_relay.parcel_shop_client', SoapParcelShopClient::class)
             ->args([
-                $credentials['brand_code'],
-                $credentials['private_key'],
+                '$brandCode'  => $credentials['brand_code'],
+                '$privateKey' => $credentials['private_key'],
             ]);
 
-        $client = $services
+        // API errors, warnings and created shipments are logged in every environment, on the "mondial_relay" channel
+        $services
             ->set('ernadoo_mondial_relay.client', MondialRelayClient::class)
             ->args([
                 '$shipmentClient'   => service('ernadoo_mondial_relay.shipment_client'),
                 '$parcelShopClient' => service('ernadoo_mondial_relay.parcel_shop_client'),
-            ]);
-
-        // API errors, warnings and created shipments, in every environment, on the "mondial_relay"
-        // channel. ernadoo/mondial-relay supports PSR-3 logging on its master branch only (4.0.x does not).
-        if ((new \ReflectionClass(MondialRelayClient::class))->implementsInterface(LoggerAwareInterface::class)) {
-            $client
-                ->call('setLogger', [service('logger')->ignoreOnInvalid()])
-                ->tag('monolog.logger', ['channel' => 'mondial_relay']);
-        }
+            ])
+            ->call('setLogger', [service('logger')->ignoreOnInvalid()])
+            ->tag('monolog.logger', ['channel' => 'mondial_relay']);
 
         // ── Autowiring entry point ─────────────────────────────────────────────
 
