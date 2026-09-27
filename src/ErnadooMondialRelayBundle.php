@@ -28,15 +28,6 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 class ErnadooMondialRelayBundle extends AbstractBundle
 {
     /**
-     * Required so Symfony resolves templates from <bundle_root>/templates/
-     * instead of <bundle_root>/src/templates/ when the bundle class lives in src/.
-     */
-    public function getPath(): string
-    {
-        return dirname(__DIR__);
-    }
-
-    /**
      * Exposes assets/dist (the relay-point-picker Stimulus controller) to AssetMapper,
      * under the "@ernadoo/mondial-relay-bundle" namespace used by controllers.json.
      */
@@ -159,7 +150,9 @@ class ErnadooMondialRelayBundle extends AbstractBundle
         // + StreamFactoryInterface), so a single instance covers all three.
         // REST calls appear automatically in the Symfony Profiler HTTP panel.
 
-        $services->set(Psr18Client::class)->autowire();
+        $services
+            ->set('ernadoo_mondial_relay.http_client', Psr18Client::class)
+            ->args([service('http_client')]);
 
         // ── Core library clients ──────────────────────────────────────────────
 
@@ -168,11 +161,11 @@ class ErnadooMondialRelayBundle extends AbstractBundle
         $credentials = $config['credentials'];
 
         $services
-            ->set(RestShipmentClient::class)
+            ->set('ernadoo_mondial_relay.shipment_client', RestShipmentClient::class)
             ->args([
-                service(Psr18Client::class),
-                service(Psr18Client::class),
-                service(Psr18Client::class),
+                service('ernadoo_mondial_relay.http_client'),
+                service('ernadoo_mondial_relay.http_client'),
+                service('ernadoo_mondial_relay.http_client'),
                 $credentials['api_login'],
                 $credentials['api_password'],
                 $credentials['brand_code'],
@@ -180,17 +173,17 @@ class ErnadooMondialRelayBundle extends AbstractBundle
             ]);
 
         $services
-            ->set(SoapParcelShopClient::class)
+            ->set('ernadoo_mondial_relay.parcel_shop_client', SoapParcelShopClient::class)
             ->args([
                 $credentials['brand_code'],
                 $credentials['private_key'],
             ]);
 
         $client = $services
-            ->set(MondialRelayClient::class)
+            ->set('ernadoo_mondial_relay.client', MondialRelayClient::class)
             ->args([
-                '$shipmentClient'   => service(RestShipmentClient::class),
-                '$parcelShopClient' => service(SoapParcelShopClient::class),
+                '$shipmentClient'   => service('ernadoo_mondial_relay.shipment_client'),
+                '$parcelShopClient' => service('ernadoo_mondial_relay.parcel_shop_client'),
             ]);
 
         // API errors, warnings and created shipments, in every environment, on the "mondial_relay"
@@ -201,17 +194,17 @@ class ErnadooMondialRelayBundle extends AbstractBundle
                 ->tag('monolog.logger', ['channel' => 'mondial_relay']);
         }
 
-        // ── Public interface alias (autowiring entry point) ────────────────────
+        // ── Autowiring entry point ─────────────────────────────────────────────
 
-        $services->alias(MondialRelayClientInterface::class, MondialRelayClient::class)->public();
+        $services->alias(MondialRelayClientInterface::class, 'ernadoo_mondial_relay.client');
 
         // ── Symfony Profiler (debug only) ─────────────────────────────────────
         // The decorator keeps a log of the calls: never in production.
 
         if ($builder->getParameter('kernel.debug')) {
             $services
-                ->set(ProfilingMondialRelayClient::class)
-                ->decorate(MondialRelayClient::class)
+                ->set('ernadoo_mondial_relay.profiling_client', ProfilingMondialRelayClient::class)
+                ->decorate('ernadoo_mondial_relay.client')
                 ->args([
                     '$inner'     => service('.inner'),
                     '$stopwatch' => service('debug.stopwatch')->nullOnInvalid(),
@@ -220,8 +213,8 @@ class ErnadooMondialRelayBundle extends AbstractBundle
                 ->tag('kernel.reset', ['method' => 'reset']);
 
             $services
-                ->set(MondialRelayDataCollector::class)
-                ->args(['$client' => service(ProfilingMondialRelayClient::class)])
+                ->set('ernadoo_mondial_relay.data_collector', MondialRelayDataCollector::class)
+                ->args(['$client' => service('ernadoo_mondial_relay.profiling_client')])
                 ->tag('data_collector', [
                     'template' => '@ErnadooMondialRelay/Collector/mondialrelay.html.twig',
                     'id'       => 'ernadoo.mondialrelay',
@@ -243,7 +236,7 @@ class ErnadooMondialRelayBundle extends AbstractBundle
         }
 
         $services
-            ->set(RelayPointSearchController::class)
+            ->set('ernadoo_mondial_relay.relay_point_search_controller', RelayPointSearchController::class)
             ->args([service(MondialRelayClientInterface::class), service('cache.app'), $picker['cache_ttl'], $limiter])
             ->tag('controller.service_arguments')
             ->public();
@@ -252,7 +245,7 @@ class ErnadooMondialRelayBundle extends AbstractBundle
 
         if (interface_exists(RuntimeExtensionInterface::class)) {
             $services
-                ->set(Twig\MondialRelayRuntime::class)
+                ->set('ernadoo_mondial_relay.twig.runtime', Twig\MondialRelayRuntime::class)
                 ->args([
                     '$brandCode'    => $credentials['brand_code'],
                     '$mode'         => $picker['mode'],
@@ -262,7 +255,7 @@ class ErnadooMondialRelayBundle extends AbstractBundle
                 ->tag('twig.runtime');
 
             $services
-                ->set(Twig\MondialRelayTwigExtension::class)
+                ->set('ernadoo_mondial_relay.twig.extension', Twig\MondialRelayTwigExtension::class)
                 ->tag('twig.extension');
         }
 

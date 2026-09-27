@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Ernadoo\MondialRelayBundle\Controller\RelayPointSearchController;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 /*
@@ -15,6 +14,6 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
  */
 return static function (RoutingConfigurator $routes): void {
     $routes->add('ernadoo_mondial_relay_relay_points', '/relay-points')
-        ->controller(RelayPointSearchController::class)
+        ->controller('ernadoo_mondial_relay.relay_point_search_controller')
         ->methods(['GET']);
 };

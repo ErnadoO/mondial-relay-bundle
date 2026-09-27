@@ -20,6 +20,7 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpClient\Psr18Client;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
@@ -44,10 +45,24 @@ final class BundleBootTest extends TestCase
         $this->kernel = new BundleTestKernel('test', false);
         $this->kernel->boot();
 
-        $client = $this->kernel->getContainer()->get(MondialRelayClientInterface::class);
+        $client = $this->kernel->getContainer()->get('test.service_container')->get(MondialRelayClientInterface::class);
 
         self::assertInstanceOf(MondialRelayClientInterface::class, $client);
-        self::assertSame('BDTEST  ', $this->kernel->getContainer()->getParameter('ernadoo_mondial_relay.customer_id'));
+        self::assertSame('BDTEST  ', $this->kernel->getContainer()->getParameter('ernadoo_mondial_relay.brand_code'));
+    }
+
+    public function testServiceIdsArePrefixedWithTheBundleAlias(): void
+    {
+        $this->kernel = new BundleTestKernel('test', false);
+        $this->kernel->boot();
+        $container = $this->kernel->getContainer()->get('test.service_container');
+
+        self::assertInstanceOf(MondialRelayClient::class, $container->get('ernadoo_mondial_relay.client'));
+        // Class names of other packages are left to the application
+        self::assertFalse($container->has(Psr18Client::class));
+        self::assertFalse($container->has(MondialRelayClient::class));
+        // Private: applications inject MondialRelayClientInterface
+        self::assertFalse($this->kernel->getContainer()->has(MondialRelayClientInterface::class));
     }
 
     public function testProfilerIntegrationIsRegisteredInDebugModeOnly(): void
@@ -56,7 +71,7 @@ final class BundleBootTest extends TestCase
         $this->kernel->boot();
         $container = $this->kernel->getContainer()->get('test.service_container');
 
-        self::assertFalse($container->has(ProfilingMondialRelayClient::class), 'No call log in production');
+        self::assertFalse($container->has('ernadoo_mondial_relay.profiling_client'), 'No call log in production');
         self::assertInstanceOf(MondialRelayClient::class, $container->get(MondialRelayClientInterface::class));
 
         $this->kernel->shutdown();
@@ -92,7 +107,7 @@ final class BundleBootTest extends TestCase
 
         $this->kernel = new BundleTestKernel('test', false);
         $this->kernel->boot();
-        $client = $this->kernel->getContainer()->get('test.service_container')->get(MondialRelayClient::class);
+        $client = $this->kernel->getContainer()->get('test.service_container')->get('ernadoo_mondial_relay.client');
 
         foreach (['shipmentClient', 'parcelShopClient'] as $property) {
             $inner = (new \ReflectionProperty($client, $property))->getValue($client);

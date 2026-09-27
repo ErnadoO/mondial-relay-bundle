@@ -51,6 +51,11 @@
             "Ernadoo\\MondialRelayBundle\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Ernadoo\\MondialRelayBundle\\Tests\\": "tests/"
+        }
+    },
     "extra": {
         "symfony": {
             "endpoint": "https://api.github.com/repos/ernadoo/recipes/contents/index.json?ref=flex/main"

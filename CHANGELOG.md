@@ -29,6 +29,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   fails the feature that needs it with a clear message.
 - Credentials are passed to `ernadoo/mondial-relay` by position, so the bundle works with its 4.0.x
   releases and with its master branch, where the arguments are renamed.
+- Service ids follow the Symfony bundle best practices: they are prefixed with the bundle alias
+  (`ernadoo_mondial_relay.client`, `ernadoo_mondial_relay.shipment_client`,
+  `ernadoo_mondial_relay.parcel_shop_client`, `ernadoo_mondial_relay.http_client`…) instead of
+  class names, and private. Inject `MondialRelayClientInterface` (the autowiring alias, unchanged);
+  fetching `MondialRelayClient::class`, `RestShipmentClient::class`, `SoapParcelShopClient::class`
+  or `Psr18Client::class` from the container, or the interface with `$container->get()`, no longer
+  works. The bundle no longer registers `Symfony\Component\HttpClient\Psr18Client`, which could
+  collide with the application's own service.
 
 ## [3.2.0] - 2026-09-26
 
