@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.0] - 2026-09-27
+
 ### Added
 
 - `api` relay point picker: a list and a Leaflet map fed by the relay point search API, as an
@@ -14,8 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rate-limits searches per IP address. Choose it with `relay_point_picker.mode: api` or
   `mondial_relay_widget(picker: 'api')`. Labels translated in English and French.
 - `mondial_relay_brand_code()` Twig function.
+- `MondialRelayErrorMessage::fromException()`: turns a Mondial Relay failure into a message for
+  users (`TranslatableInterface`, `ErnadooMondialRelayBundle` domain, English and French): invalid
+  phone number, unusable relay point, parcel weight, postal code, country, credentials, Mondial
+  Relay unavailable, other rejections. Based on the codes returned by the sandbox; unknown codes
+  fall back to a generic message. Requires `symfony/translation-contracts`.
 - Mondial Relay API errors, warnings and created shipments are logged in every environment, on the
-  `mondial_relay` channel (requires `ernadoo/mondial-relay` with PSR-3 logging, `4.x-dev`).
+  `mondial_relay` channel.
 
 ### Changed
 
@@ -25,10 +32,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `MONDIAL_RELAY_BRAND_CODE`, `MONDIAL_RELAY_API_LOGIN`, `MONDIAL_RELAY_API_PASSWORD` and
   `MONDIAL_RELAY_PRIVATE_KEY`.
 - Only the brand code is required: the API user is needed to create labels, the private key to
-  search relay points through the API. With `ernadoo/mondial-relay` 4.x-dev, a missing credential
-  fails the feature that needs it with a clear message.
-- Credentials are passed to `ernadoo/mondial-relay` by position, so the bundle works with its 4.0.x
-  releases and with its master branch, where the arguments are renamed.
+  search relay points through the API. A missing credential fails the feature that needs it with
+  a clear message.
+- Requires `ernadoo/mondial-relay` 4.1: label creation did not work with 4.0.x, and 4.1 brings the
+  logging and the clear messages about missing credentials.
 - Service ids follow the Symfony bundle best practices: they are prefixed with the bundle alias
   (`ernadoo_mondial_relay.client`, `ernadoo_mondial_relay.shipment_client`,
   `ernadoo_mondial_relay.parcel_shop_client`, `ernadoo_mondial_relay.http_client`…) instead of
@@ -108,7 +115,8 @@ Rewrite for Symfony 6.4 / 7.x, on top of `ernadoo/mondial-relay` ^3.0.
 
 Older versions: see the [tags](https://github.com/ErnadoO/mondial-relay-bundle/tags).
 
-[Unreleased]: https://github.com/ErnadoO/mondial-relay-bundle/compare/v3.2.0...master
+[Unreleased]: https://github.com/ErnadoO/mondial-relay-bundle/compare/v3.3.0...master
+[3.3.0]: https://github.com/ErnadoO/mondial-relay-bundle/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/ErnadoO/mondial-relay-bundle/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/ErnadoO/mondial-relay-bundle/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/ErnadoO/mondial-relay-bundle/releases/tag/v3.0.0
